@@ -8,6 +8,16 @@
 
 ---
 
+## 📱 App Screenshots
+
+<p align="center">
+  <img src="assets/screenshots/login.png" width="30%" alt="Login Screen" />
+  <img src="assets/screenshots/dashboard.png" width="30%" alt="Dashboard Screen" />
+  <img src="assets/screenshots/savings.png" width="30%" alt="Savings Screen" />
+</p>
+
+---
+
 ## ✨ Key Features
 
 ### 🔐 Advanced Authentication

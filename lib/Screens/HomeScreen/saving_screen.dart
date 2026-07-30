@@ -7,6 +7,7 @@ import '../../Services/saving_service.dart';
 import '../../Models/saving_model.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import '../../Widgets/swip_button.dart';
 
 class SavingScreen extends StatefulWidget {
   const SavingScreen({super.key});
@@ -40,7 +41,7 @@ class _SavingScreenState extends State<SavingScreen> {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1E3C72),
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -110,7 +111,7 @@ class _SavingScreenState extends State<SavingScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.all(24.r),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [Color(0xFF00b09b), Color(0xFF96c93d)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -144,7 +145,7 @@ class _SavingScreenState extends State<SavingScreen> {
                                 Text(
                                   formatter.format(totalSavings),
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).colorScheme.surface,
                                     fontSize: 32.sp,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1,
@@ -177,7 +178,7 @@ class _SavingScreenState extends State<SavingScreen> {
                                         ? "Great Progress!"
                                         : "Deposit to Start",
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).colorScheme.surface,
                                       fontSize: 18.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -202,7 +203,7 @@ class _SavingScreenState extends State<SavingScreen> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ),
@@ -214,11 +215,11 @@ class _SavingScreenState extends State<SavingScreen> {
               child: Container(
                 padding: EdgeInsets.all(20.r),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(25.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(13),
+                      color: Theme.of(context).primaryColor.withAlpha(20),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -246,70 +247,43 @@ class _SavingScreenState extends State<SavingScreen> {
               child: SizedBox(
                 width: double.infinity,
                 height: 60.h,
-                child: ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () async {
-                          if (_amountController.text.isEmpty) {
-                            KSnackBar.showError(
-                              context,
-                              message: "Please enter an amount!",
-                            );
-                            return;
-                          }
+                child: SwipeButton(
+                  text: "Deposit Now",
+                  backgroundColor: const Color(0xFF00b09b),
+                  onSwipe: () async {
+                    if (_amountController.text.isEmpty) {
+                      KSnackBar.showError(
+                        context,
+                        message: "Please enter an amount!",
+                      );
+                      return;
+                    }
 
-                          setState(() => _isLoading = true);
+                    try {
+                      final user = FirebaseAuth.instance.currentUser;
+                      if (user == null) throw "User not logged in";
 
-                          try {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user == null) throw "User not logged in";
+                      final saving = SavingModel(
+                        amount: double.parse(_amountController.text),
+                        date: DateTime.now(),
+                        userId: user.uid,
+                      );
 
-                            final saving = SavingModel(
-                              amount: double.parse(_amountController.text),
-                              date: DateTime.now(),
-                              userId: user.uid,
-                            );
+                      await _savingService.addSaving(saving);
 
-                            await _savingService.addSaving(saving);
-
-                            if (mounted) {
-                              KSnackBar.showSuccess(
-                                context,
-                                message: "Savings updated successfully!",
-                              );
-                              _amountController.clear();
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              KSnackBar.showError(
-                                context,
-                                message: "Error: $e",
-                              );
-                            }
-                          } finally {
-                            if (mounted) {
-                              setState(() => _isLoading = false);
-                            }
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00b09b),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    elevation: 10,
-                    shadowColor: const Color(0xFF00b09b).withAlpha(100),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          "Deposit Now",
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                      if (mounted) {
+                        KSnackBar.showSuccess(
+                          context,
+                          message: "Savings updated successfully!",
+                        );
+                        _amountController.clear();
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        KSnackBar.showError(context, message: "Error: $e");
+                      }
+                    }
+                  },
                 ),
               ),
             ),
@@ -330,7 +304,7 @@ class _SavingScreenState extends State<SavingScreen> {
         ),
         child: Icon(
           Icons.calendar_month_rounded,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           size: 22.sp,
         ),
       ),
@@ -362,7 +336,11 @@ class _SavingScreenState extends State<SavingScreen> {
           value: "Month",
           child: Row(
             children: [
-              Icon(Icons.calendar_view_month, size: 20, color: Color(0xFF00b09b)),
+              Icon(
+                Icons.calendar_view_month,
+                size: 20,
+                color: Color(0xFF00b09b),
+              ),
               SizedBox(width: 10),
               Text("Show Month View"),
             ],
@@ -383,7 +361,11 @@ class _SavingScreenState extends State<SavingScreen> {
           value: "SelectDate",
           child: Row(
             children: [
-              Icon(Icons.edit_calendar_rounded, size: 20, color: Color(0xFF00b09b)),
+              Icon(
+                Icons.edit_calendar_rounded,
+                size: 20,
+                color: Color(0xFF00b09b),
+              ),
               SizedBox(width: 10),
               Text("Choose Month/Year"),
             ],
@@ -408,7 +390,7 @@ class _SavingScreenState extends State<SavingScreen> {
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
-            color: Colors.black54,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ),
         SizedBox(height: 10.h),

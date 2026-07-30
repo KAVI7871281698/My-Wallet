@@ -57,8 +57,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 height: 150.h,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+                  gradient: LinearGradient(
+                    colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -74,12 +74,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   duration: const Duration(milliseconds: 600),
                   child: Container(
                     padding: EdgeInsets.all(4.r),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: Theme.of(context).dividerColor,
                           blurRadius: 10,
                           offset: Offset(0, 5),
                         ),
@@ -87,11 +87,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: CircleAvatar(
                       radius: 60.r,
-                      backgroundColor: const Color(0xFF1E3C72).withAlpha(30),
+                      backgroundColor: Theme.of(context).primaryColor.withAlpha(30),
                       child: Icon(
                         Icons.person_rounded,
                         size: 70.r,
-                        color: const Color(0xFF1E3C72),
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ),
@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E3C72),
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
                 Text(
@@ -233,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1E3C72),
+              color: Theme.of(context).primaryColor,
             ),
           ),
           Text(
@@ -252,11 +252,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 15.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
+            color: Theme.of(context).primaryColor.withAlpha(20),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -276,7 +276,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
-            color: isLogout ? Colors.red : Colors.black87,
+            color: isLogout ? Colors.red : Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
         trailing: Icon(

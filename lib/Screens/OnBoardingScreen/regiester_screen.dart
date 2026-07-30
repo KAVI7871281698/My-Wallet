@@ -92,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveLayout(
         mobile: _buildBody(context),
         tablet: _buildBody(context, isTablet: true),
@@ -134,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: TextStyle(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1A1A1A),
+                color: Theme.of(context).textTheme.titleLarge?.color,
                 letterSpacing: -0.5,
               ),
             ),
@@ -143,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'Join us and start managing your wallet',
               style: TextStyle(
                 fontSize: 16.sp,
-                color: Colors.black45,
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
               ),
             ),
             SizedBox(height: 40.h),
@@ -194,15 +194,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Colors.black12),
+                        borderSide: const BorderSide(),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Colors.black12),
+                        borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
-                        borderSide: const BorderSide(color: Color(0xFF1A1A1A), width: 1.5),
+                        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
@@ -210,10 +210,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Colors.red, width: 1.5),
+                        borderSide: const BorderSide(color: Colors.red, width: 1.5),
                       ),
                       filled: true,
-                      fillColor: Colors.grey.shade50,
+                      fillColor: Theme.of(context).colorScheme.surface,
                     ),
                     initialCountryCode: 'IN',
                     onChanged: (phone) {
@@ -254,6 +254,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     setState(() => _isLoading = true);
 
                     try {
+                      // 0. Check if user already exists
+                      bool userExists = await _authService.checkUserExists(_phoneNumber);
+                      if (userExists) {
+                        setState(() => _isLoading = false);
+                        KSnackBar.showError(context, message: "Number already registered. Please login instead.");
+                        return;
+                      }
+
                       // 1. Fetch device and location details
                       final details = await _getDeviceAndLocation();
                       
@@ -355,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
@@ -366,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ? SizedBox(
                       height: 20.h,
                       width: 20.h,
-                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2),
                     )
                   : Text(
                       'Register',
@@ -386,7 +394,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   'Already have an account? ',
-                  style: TextStyle(color: Colors.black45, fontSize: 14.sp),
+                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 14.sp),
                 ),
                 TextButton(
                   onPressed: () {
@@ -398,7 +406,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      color: const Color(0xFF1A1A1A),
+                      color: Theme.of(context).textTheme.titleLarge?.color,
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
                     ),
@@ -430,18 +438,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.black54, size: 22.sp),
+        prefixIcon: Icon(icon, color: Theme.of(context).textTheme.bodyMedium?.color, size: 22.sp),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.black12),
+          borderSide: const BorderSide(),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.black12),
+          borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: const BorderSide(color: Color(0xFF1A1A1A), width: 1.5),
+          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
@@ -449,12 +457,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Colors.red, width: 1.5),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
         filled: true,
-        fillColor: Colors.grey.shade50,
-        labelStyle: TextStyle(color: Colors.black87, fontSize: 14.sp),
-        hintStyle: TextStyle(color: Colors.black26, fontSize: 14.sp),
+        fillColor: Theme.of(context).colorScheme.surface,
+        labelStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 14.sp),
+        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 14.sp),
       ),
     );
   }

@@ -38,7 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (permission != LocationPermission.deniedForever) {
         Position position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
         );
         debugPrint("Location: ${position.latitude}, ${position.longitude}");
       }
@@ -66,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveLayout(
         mobile: _buildLoginContent(context),
         tablet: _buildLoginContent(context),
@@ -88,12 +90,13 @@ class _LoginScreenState extends State<LoginScreen> {
               duration: const Duration(seconds: 1),
               tween: Tween<double>(begin: 0, end: 1),
               builder: (context, double value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: child,
-                );
+                return Opacity(opacity: value, child: child);
               },
-              child: Image.asset(AppImage.app_logo, width: 120.w, height: 120.h),
+              child: Image.asset(
+                AppImage.app_logo,
+                width: 120.w,
+                height: 120.h,
+              ),
             ),
             SizedBox(height: 20.h),
             Text(
@@ -101,13 +104,13 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(
                 fontSize: 28.sp,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1E3C72),
+                color: Theme.of(context).primaryColor,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               "Login to your account to continue managing your finances effortlessly.",
-              style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+              style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
             ),
             SizedBox(height: 40.h),
             Form(
@@ -121,11 +124,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15.r),
-                    borderSide: const BorderSide(color: Color(0xFF1E3C72)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).primaryColor,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15.r),
-                    borderSide: BorderSide(color: const Color(0xFF1E3C72).withAlpha(50)),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).primaryColor.withAlpha(50),
+                    ),
                   ),
                 ),
                 initialCountryCode: 'IN',
@@ -143,7 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ? null
                     : () async {
                         if (_phoneNumber.isEmpty) {
-                          KSnackBar.showError(context, message: "Please enter your phone number!");
+                          KSnackBar.showError(
+                            context,
+                            message: "Please enter your phone number!",
+                          );
                           return;
                         }
                         setState(() => _isLoading = true);
@@ -152,10 +162,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         await _saveDeviceDetails();
 
                         try {
+                          // We will check if the user is registered AFTER they successfully authenticate with OTP.
+                          // This avoids Firestore Permission Denied errors because unauthenticated users cannot read the DB.
+
                           await _authService.verifyPhone(
                             phoneNumber: _phoneNumber,
                             onCodeSent: (verificationId) async {
-                              debugPrint("OTP Code Sent! Verification ID: $verificationId");
+                              debugPrint(
+                                "OTP Code Sent! Verification ID: $verificationId",
+                              );
                               setState(() => _isLoading = false);
 
                               final otp = await OtpScreen.show(
@@ -169,6 +184,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // Fetch and cache user data for immediate show in Dashboard
                                 User? user = FirebaseAuth.instance.currentUser;
                                 if (user != null) {
+                                  // NOW we check if they are registered!
+                                  bool userExists = await _authService.checkUserExists(_phoneNumber);
+                                  
+                                  if (!userExists) {
+                                    // If they authenticated but aren't registered in the DB
+                                    await FirebaseAuth.instance.signOut();
+                                    if (mounted) {
+                                      setState(() => _isLoading = false);
+                                      KSnackBar.showError(
+                                        context,
+                                        message: "Number not registered. Please sign up first.",
+                                      );
+                                    }
+                                    return;
+                                  }
+
                                   UserModel? data = await _authService.getUserData(user.uid);
                                   if (data != null) {
                                     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -190,35 +221,60 @@ class _LoginScreenState extends State<LoginScreen> {
                             onVerificationFailed: (e) {
                               if (e.code == "billing-not-enabled" ||
                                   e.code == "too-many-requests" ||
-                                  e.message?.contains("BILLING_NOT_ENABLED") == true ||
-                                  e.message?.contains("too-many-requests") == true) {
-                                debugPrint("[DEV MODE] Firebase issue (${e.code}). Switching to Manual Testing...");
+                                  e.message?.contains("BILLING_NOT_ENABLED") ==
+                                      true ||
+                                  e.message?.contains("too-many-requests") ==
+                                      true) {
+                                debugPrint(
+                                  "[DEV MODE] Firebase issue (${e.code}). Switching to Manual Testing...",
+                                );
                                 _authService.verifyPhone(
                                   phoneNumber: _phoneNumber,
                                   onCodeSent: (mockId) async {
                                     setState(() => _isLoading = false);
-                                    final otp = await OtpScreen.show(context, phoneNumber: _phoneNumber, verificationId: mockId);
+                                    final otp = await OtpScreen.show(
+                                      context,
+                                      phoneNumber: _phoneNumber,
+                                      verificationId: mockId,
+                                    );
                                     if (otp != null && mounted) {
                                       setState(() => _isLoading = true);
                                       // Fetch and cache user data for immediate show in Dashboard
-                                      User? user = FirebaseAuth.instance.currentUser;
+                                      User? user =
+                                          FirebaseAuth.instance.currentUser;
                                       if (user != null) {
-                                        UserModel? data = await _authService.getUserData(user.uid);
+                                        UserModel? data = await _authService
+                                            .getUserData(user.uid);
                                         if (data != null) {
-                                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                                          await prefs.setString('user_name', data.name);
-                                          await prefs.setString('user_email', data.email);
+                                          SharedPreferences prefs =
+                                              await SharedPreferences.getInstance();
+                                          await prefs.setString(
+                                            'user_name',
+                                            data.name,
+                                          );
+                                          await prefs.setString(
+                                            'user_email',
+                                            data.email,
+                                          );
                                         }
                                       }
 
                                       if (mounted) {
-                                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Dashboard(),
+                                          ),
+                                        );
                                       }
                                     }
                                   },
                                   onVerificationFailed: (e) {
                                     setState(() => _isLoading = false);
-                                    debugPrint("Manual Verification Failed: $e");
+                                    debugPrint(
+                                      "Manual Verification Failed: $e",
+                                    );
                                   },
                                   forceMock: true,
                                 );
@@ -226,17 +282,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                               setState(() => _isLoading = false);
                               debugPrint("Phone Verification Failed: $e");
-                              KSnackBar.showError(context, message: "Verification failed: ${e.message}");
+                              KSnackBar.showError(
+                                context,
+                                message: "Verification failed: ${e.message}",
+                              );
                             },
                           );
                         } catch (e) {
                           setState(() => _isLoading = false);
                           debugPrint("Error: $e");
-                          KSnackBar.showError(context, message: "An error occurred: $e");
+                          KSnackBar.showError(
+                            context,
+                            message: "An error occurred: $e",
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3C72),
+                  backgroundColor: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.r),
                   ),
@@ -249,41 +311,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.surface,
                         ),
                       ),
               ),
             ),
-            SizedBox(height: 30.h),
-            Row(
-              children: [
-                const Expanded(child: Divider()),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Text(
-                    "OR CONNECT WITH",
-                    style: TextStyle(fontSize: 12.sp, color: Colors.black38),
-                  ),
-                ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-            SizedBox(height: 30.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(child: _socialIcon(Icons.g_mobiledata, "Google")),
-                SizedBox(width: 15.w),
-                Expanded(child: _socialIcon(Icons.facebook, "Facebook")),
-              ],
-            ),
-            SizedBox(height: 40.h),
+            SizedBox(height: 10.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "Don't have an account? ",
-                  style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+                  style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
                 ),
                 TextButton(
                   onPressed: () {
@@ -298,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Sign Up",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: const Color(0xFF1E3C72),
+                      color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -308,30 +347,6 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20.h),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _socialIcon(IconData icon, String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black12),
-        borderRadius: BorderRadius.circular(15.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 28.sp),
-          SizedBox(width: 5.w),
-          Flexible(
-            child: Text(
-              label,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
       ),
     );
   }

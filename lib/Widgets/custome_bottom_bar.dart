@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,54 +12,85 @@ class CustomBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Reduced margin to prevent overflow on smaller screens
-      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 15.h),
+      // Keep it floating above the bottom edge with margins
+      margin: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 25.h),
       decoration: BoxDecoration(
-        color: Colors.white, // Background changed to White
-        borderRadius: BorderRadius.all(Radius.circular(30.r)),
-        border: Border.all(
-          color: Colors.blue.withAlpha(51), // Subtle blue border
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(35.r),
         boxShadow: [
+          // Soft ambient drop shadow for the 3D floating effect
           BoxShadow(
-            blurRadius: 20,
-            color: Colors.black.withAlpha(
-              20,
-            ), // Softer shadow for white background
-            offset: const Offset(0, 5),
+            color: Theme.of(context).primaryColor.withAlpha(30),
+            blurRadius: 25,
+            spreadRadius: 0,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Padding(
-        // Reduced horizontal padding to fix overflow
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-        child: GNav(
-          rippleColor: Colors.blue.withAlpha(51),
-          hoverColor: Colors.blue.withAlpha(25),
-          haptic: true,
-          tabBorderRadius: 20.r,
-          curve: Curves.easeOutExpo,
-          duration: const Duration(milliseconds: 400),
-          gap: 4, // Reduced gap to fix overflow
-          color: Colors.black45, // Unselected icon color
-          activeColor: Colors.blue, // Active color changed to Blue
-          iconSize: 22.sp, // Slightly reduced icon size to save space
-          tabBackgroundColor: Colors.blue.withAlpha(
-            25,
-          ), // Light blue background for active tab
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-          selectedIndex: index,
-          onTabChange: onTap,
-          tabs: const [
-            GButton(icon: Icons.dashboard_rounded, text: 'Home'),
-            GButton(
-              icon: Icons.account_balance_wallet_rounded,
-              text: 'Expense',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(35.r),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 15,
+            sigmaY: 15,
+          ), // Glassmorphism blur
+          child: Container(
+            // Translucent surface for the frosted glass effect
+            color: Theme.of(context).colorScheme.surface.withAlpha(220),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+            // Faint border for the glass edge highlight
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(35.r),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.surface.withAlpha(100),
+                width: 1.5,
+              ),
             ),
-            GButton(icon: Icons.savings_rounded, text: 'Savings'),
-            GButton(icon: Icons.person_rounded, text: 'Profile'),
-          ],
+            child: GNav(
+              rippleColor: Colors.grey.shade300,
+              hoverColor: Colors.grey.shade100,
+              gap: 8,
+              activeColor: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white,
+              iconSize: 24.sp,
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              duration: const Duration(milliseconds: 400),
+              tabBackgroundColor: Colors.transparent,
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), // Inactive icon color
+              // A vibrant gradient for the active tab (trending)
+              tabBackgroundGradient: LinearGradient(
+                colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              tabBorderRadius: 25.r,
+              curve: Curves.easeOutExpo,
+              tabs: [
+                GButton(
+                  icon: index == 0 ? Icons.home_rounded : Icons.home_outlined,
+                  text: 'Home',
+                ),
+                GButton(
+                  icon: index == 1
+                      ? Icons.account_balance_wallet_rounded
+                      : Icons.account_balance_wallet_outlined,
+                  text: 'Wallet',
+                ),
+                GButton(
+                  icon: index == 2
+                      ? Icons.savings_rounded
+                      : Icons.savings_outlined,
+                  text: 'Savings',
+                ),
+                GButton(
+                  icon: index == 3
+                      ? Icons.person_rounded
+                      : Icons.person_outline_rounded,
+                  text: 'Profile',
+                ),
+              ],
+              selectedIndex: index,
+              onTabChange: onTap,
+            ),
+          ),
         ),
       ),
     );

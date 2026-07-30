@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../Bloc/bloc.dart';
+import '../../Bloc/bloc_event.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -27,6 +30,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
   String _selectedFilter = "Month"; // Default filter
   DateTime _focusedDate = DateTime.now();
@@ -190,16 +194,15 @@ class _DashboardState extends State<Dashboard> {
           }
         },
       ),
-      type: SideMenuType.shrinkNSlide, // Most modern style
-      background: const Color(0xFF1E3C72),
+      type: SideMenuType.shrinkNSlide,
+      background: Theme.of(context).primaryColor,
       radius: BorderRadius.circular(30.r),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),
+        key: _scaffoldKey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Column(
           children: [
-            // Safe Header Area (Prevents overlap with charger/status bar)
             _buildModernHeader(),
-
             Expanded(
               child: ClipRRect(
                 borderRadius: _currentIndex == 0
@@ -207,8 +210,7 @@ class _DashboardState extends State<Dashboard> {
                     : BorderRadius.vertical(top: Radius.circular(30.r)),
                 child: PageView(
                   controller: _pageController,
-                  physics:
-                      const NeverScrollableScrollPhysics(), // Only navigate via bottom bar
+                  physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (index) {
                     setState(() {
                       _currentIndex = index;
@@ -247,36 +249,28 @@ class _DashboardState extends State<Dashboard> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutQuart,
-    );
+    _pageController.jumpToPage(index);
   }
 
   Widget _buildModernHeader() {
     return Container(
-      // Padding handles the status bar (time/charger) safely
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10.h,
+        top: MediaQuery.of(context).padding.top + 5.h,
         left: 20.w,
         right: 20.w,
-        bottom: 15.h,
+        bottom: 5.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: const Color(0xFF1E3C72).withAlpha(30),
+            color: Theme.of(context).dividerColor.withOpacity(0.3),
             width: 1,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -288,7 +282,7 @@ class _DashboardState extends State<Dashboard> {
           IconButton(
             icon: Icon(
               Icons.align_horizontal_left_rounded,
-              color: const Color(0xFF1E3C72),
+              color: Theme.of(context).primaryColor,
               size: 28.sp,
             ),
             onPressed: () {
@@ -305,43 +299,48 @@ class _DashboardState extends State<Dashboard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Hello, $_userName!",
+                  'Hello, $_userName',
                   style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.black54,
-                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  "Welcome Back",
+                  'Welcome back to your wallet',
                   style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF1E3C72),
-                    letterSpacing: -0.5,
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                    fontSize: 12.sp,
                   ),
                 ),
               ],
             ),
           ),
           GestureDetector(
-            onTap: () =>
-                _onItemTapped(3), // Navigate to Profile Screen (Index 3 now)
+            onTap: () {
+              context.read<ThemeBloc>().add(ToggleThemeEvent());
+            },
             child: Container(
               padding: EdgeInsets.all(2.r),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFF1E3C72).withAlpha(30),
+                  color: Theme.of(context).primaryColor.withOpacity(0.3),
                   width: 1,
                 ),
               ),
               child: CircleAvatar(
                 radius: 18.r,
-                backgroundColor: const Color(0xFF1E3C72).withAlpha(15),
+                backgroundColor: Theme.of(
+                  context,
+                ).primaryColor.withOpacity(0.15),
                 child: Icon(
-                  Icons.person_outline_rounded,
-                  color: const Color(0xFF1E3C72),
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                  color: Theme.of(context).primaryColor,
                   size: 20.sp,
                 ),
               ),
@@ -350,14 +349,14 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(width: 8.w),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF1E3C72).withAlpha(15),
+              color: Theme.of(context).primaryColor.withAlpha(15),
               shape: BoxShape.circle,
             ),
             child: IconButton(
               icon: Icon(
                 Icons.notifications_none_rounded,
                 size: 24.sp,
-                color: const Color(0xFF1E3C72),
+                color: Theme.of(context).primaryColor,
               ),
               onPressed: () {},
             ),
@@ -410,15 +409,15 @@ class _DashboardState extends State<Dashboard> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+              gradient: LinearGradient(
+                colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(25.r),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1E3C72).withAlpha(76),
+                  color: Theme.of(context).primaryColor.withAlpha(76),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 ),
@@ -444,7 +443,7 @@ class _DashboardState extends State<Dashboard> {
                         Text(
                           "₹ ${totalFilterExpense.toStringAsFixed(0)}",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                             fontSize: 28.sp,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -495,7 +494,7 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         child: Icon(
                           Icons.calendar_month_rounded,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.surface,
                           size: 20.sp,
                         ),
                       ),
@@ -562,7 +561,7 @@ class _DashboardState extends State<Dashboard> {
                           Text(
                             "₹ ${todayExpense.toStringAsFixed(0)}",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.surface,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -582,7 +581,7 @@ class _DashboardState extends State<Dashboard> {
                         child: Text(
                           "Live",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.surface,
                             fontSize: 8.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -605,7 +604,7 @@ class _DashboardState extends State<Dashboard> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
               Text(
@@ -628,7 +627,12 @@ class _DashboardState extends State<Dashboard> {
                     padding: EdgeInsets.only(top: 40.h),
                     child: Text(
                       "No transactions yet!",
-                      style: TextStyle(color: Colors.black45, fontSize: 14.sp),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                        fontSize: 14.sp,
+                      ),
                     ),
                   ),
                 )
@@ -662,7 +666,7 @@ class _DashboardState extends State<Dashboard> {
         child: Text(
           title,
           style: TextStyle(
-            color: isSelected ? const Color(0xFF1E3C72) : Colors.white,
+            color: isSelected ? Theme.of(context).primaryColor : Colors.white,
             fontSize: 10.sp,
             fontWeight: FontWeight.bold,
           ),
@@ -680,7 +684,10 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(width: 12.w),
           Text(
             title,
-            style: TextStyle(color: Colors.white, fontSize: 13.sp),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.surface,
+              fontSize: 13.sp,
+            ),
           ),
         ],
       ),
@@ -698,11 +705,11 @@ class _DashboardState extends State<Dashboard> {
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(13),
+            color: Theme.of(context).primaryColor.withAlpha(20),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -728,12 +735,12 @@ class _DashboardState extends State<Dashboard> {
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 Text(
                   category,
-                  style: TextStyle(fontSize: 12.sp, color: Colors.black45),
+                  style: TextStyle(fontSize: 12.sp, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
                 ),
               ],
             ),

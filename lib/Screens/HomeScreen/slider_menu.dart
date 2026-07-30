@@ -18,153 +18,134 @@ class SliderMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
+      color: const Color(0xFF0B132B), // Deep royal navy background
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(top: 30.h, left: 30.w, bottom: 40.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Sleek Modern Profile Card
+              Container(
+                margin: EdgeInsets.only(right: 30.w),
+                padding: EdgeInsets.all(20.r),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(30.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28.r,
+                      backgroundColor: Colors.amber.withOpacity(0.2),
+                      child: Icon(
+                        Icons.person_rounded,
+                        size: 30.r,
+                        color: Colors.amber,
+                      ),
+                    ),
+                    SizedBox(width: 15.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(height: 5.h),
+                          Text(
+                            "Premium Member",
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 60.h),
+
+              // Massive Typography Menu Items
+              _drawerItem("Home", selectedTitle == "Home"),
+              _drawerItem("My Wallet", selectedTitle == "My Wallet"),
+              _drawerItem("Statistics", selectedTitle == "Statistics"),
+              _drawerItem("Notifications", selectedTitle == "Notifications"),
+              _drawerItem("Settings", selectedTitle == "Settings"),
+
+              const Spacer(),
+
+              // Minimalist Logout
+              InkWell(
+                onTap: () => onItemClick("Logout"),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.power_settings_new_rounded,
+                      color: Colors.redAccent,
+                      size: 22.sp,
+                    ),
+                    SizedBox(width: 15.w),
+                    Text(
+                      "Logout",
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      padding: EdgeInsets.only(top: 80.h, left: 24.w, right: 24.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Profile Section with Glassmorphism feel
-          Container(
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(25),
-              borderRadius: BorderRadius.circular(24.r),
-              border: Border.all(color: Colors.white.withAlpha(51)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(3.r),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: CircleAvatar(
-                    radius: 30.r,
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    child: Icon(Icons.person, size: 35.r, color: Colors.white),
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        userName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        userEmail,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12.sp,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 50.h),
-
-          // Menu Items
-          _drawerItem(Icons.dashboard_rounded, "Home", selectedTitle == "Home"),
-          _drawerItem(
-            Icons.account_balance_wallet_rounded,
-            "My Wallet",
-            selectedTitle == "My Wallet",
-          ),
-          _drawerItem(
-            Icons.analytics_rounded,
-            "Statistics",
-            selectedTitle == "Statistics",
-          ),
-          _drawerItem(
-            Icons.notifications_rounded,
-            "Notifications",
-            selectedTitle == "Notifications",
-          ),
-          _drawerItem(
-            Icons.settings_rounded,
-            "Settings",
-            selectedTitle == "Settings",
-          ),
-
-          const Spacer(),
-
-          // Logout Section
-          Container(
-            margin: EdgeInsets.only(bottom: 40.h),
-            child: _drawerItem(
-              Icons.logout_rounded,
-              "Logout",
-              false,
-              isLogout: true,
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _drawerItem(
-    IconData icon,
-    String title,
-    bool isSelected, {
-    bool isLogout = false,
-  }) {
+  Widget _drawerItem(String title, bool isSelected) {
     return InkWell(
       onTap: () => onItemClick(title),
-      borderRadius: BorderRadius.circular(16.r),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-        margin: EdgeInsets.only(bottom: 8.h),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white.withAlpha(40) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
+        margin: EdgeInsets.only(bottom: 25.h),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isLogout ? Colors.redAccent.shade100 : Colors.white,
-              size: 24.sp,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: isSelected ? 8.w : 0,
+              height: 8.w,
+              margin: EdgeInsets.only(right: isSelected ? 15.w : 0),
+              decoration: const BoxDecoration(
+                color: Colors.amber,
+                shape: BoxShape.circle,
+                boxShadow: [BoxShadow(color: Colors.amber, blurRadius: 10)],
+              ),
             ),
-            SizedBox(width: 16.w),
             Text(
               title,
               style: TextStyle(
-                color: isLogout ? Colors.redAccent.shade100 : Colors.white,
-                fontSize: 15.sp,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                letterSpacing: 0.5,
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.4),
+                fontSize: isSelected ? 28.sp : 24.sp,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
+                letterSpacing: -0.5,
               ),
             ),
-            if (isSelected) ...[
-              const Spacer(),
-              Container(
-                width: 6.w,
-                height: 6.w,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
           ],
         ),
       ),

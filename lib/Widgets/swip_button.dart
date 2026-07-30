@@ -5,6 +5,7 @@ class SwipeButton extends StatefulWidget {
   final String text;
   final Future<void> Function() onSwipe;
   final Color? backgroundColor;
+  final Gradient? gradient;
   final Color thumbColor;
   final IconData thumbIcon;
 
@@ -13,6 +14,7 @@ class SwipeButton extends StatefulWidget {
     required this.text,
     required this.onSwipe,
     this.backgroundColor,
+    this.gradient,
     this.thumbColor = Colors.white,
     this.thumbIcon = Icons.arrow_forward_ios_rounded,
   });
@@ -37,12 +39,20 @@ class _SwipeButtonState extends State<SwipeButton> {
 
         final Color effectiveBgColor =
             widget.backgroundColor ?? Theme.of(context).primaryColor;
+            
+        final Gradient effectiveGradient = widget.gradient ??
+            LinearGradient(
+              colors: [Theme.of(context).primaryColor, Theme.of(context).colorScheme.secondary],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            );
 
         return Container(
           height: _buttonHeight,
           width: constraints.maxWidth,
           decoration: BoxDecoration(
-            color: _isSwiped ? Colors.green : effectiveBgColor,
+            color: widget.backgroundColor != null && !_isSwiped ? effectiveBgColor : (_isSwiped ? Colors.green : null),
+            gradient: widget.backgroundColor == null && !_isSwiped ? effectiveGradient : null,
             borderRadius: BorderRadius.circular(15.r),
           ),
           child: Stack(

@@ -92,11 +92,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveLayout(
-        mobile: _buildBody(context),
-        tablet: _buildBody(context, isTablet: true),
-        desktop: _buildBody(context, isDesktop: true),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor, // Deep royal color
+              const Color(0xFF0B132B), // Very dark navy
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ResponsiveLayout(
+          mobile: _buildBody(context),
+          tablet: _buildBody(context, isTablet: true),
+          desktop: _buildBody(context, isDesktop: true),
+        ),
       ),
     );
   }
@@ -106,134 +119,129 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 60.h),
-            // App Logo
-            TweenAnimationBuilder(
-              duration: const Duration(seconds: 1),
-              tween: Tween<double>(begin: 0, end: 1),
-              builder: (context, double value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: Transform.scale(
-                    scale: 0.8 + (0.2 * value),
-                    child: child,
-                  ),
-                );
-              },
-              child: Image.asset(
-                AppImage.app_logo,
-                width: 100.w,
-                height: 100.h,
-              ),
-            ),
-            SizedBox(height: 30.h),
             Text(
               'Create Account',
               style: TextStyle(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.titleLarge?.color,
-                letterSpacing: -0.5,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 1,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
-              'Join us and start managing your wallet',
+              'Join us and start managing your wealth today.',
               style: TextStyle(
                 fontSize: 16.sp,
-                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                color: Colors.white.withOpacity(0.7),
+                height: 1.5,
               ),
             ),
             SizedBox(height: 40.h),
             
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Name Field
-                  _buildTextField(
-                    controller: _nameController,
-                    label: 'Full Name',
-                    hint: 'John Doe',
-                    icon: Icons.person_outline,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  
-                  // Email Field
-                  _buildTextField(
-                    controller: _emailController,
-                    label: 'Email Address',
-                    hint: 'example@mail.com',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  
-                  // Mobile Field
-                  IntlPhoneField(
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      hintText: '98765 43210',
-                      prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: const BorderSide(),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Colors.red.shade300),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                    ),
-                    initialCountryCode: 'IN',
-                    onChanged: (phone) {
-                      _phoneNumber = phone.completeNumber;
-                    },
-                    validator: (phone) {
-                      if (phone == null || phone.number.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      try {
-                        if (!phone.isValidNumber()) {
-                          return 'Please enter a valid phone number';
-                        }
-                      } catch (e) {
-                        return 'Invalid phone number';
-                      }
-                      return null;
-                    },
+            // Glassmorphism Container
+            Container(
+              padding: EdgeInsets.all(24.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(30.r),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
                 ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // Name Field
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      hint: 'John Doe',
+                      icon: Icons.person_outline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    
+                    // Email Field
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      hint: 'example@mail.com',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    
+                    // Mobile Field
+                    IntlPhoneField(
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownTextStyle: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide(color: Colors.red.shade300),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                        ),
+                      ),
+                      initialCountryCode: 'IN',
+                      onChanged: (phone) {
+                        _phoneNumber = phone.completeNumber;
+                      },
+                      validator: (phone) {
+                        if (phone == null || phone.number.isEmpty) {
+                          return 'Please enter your phone number';
+                        }
+                        try {
+                          if (!phone.isValidNumber()) {
+                            return 'Please enter a valid phone number';
+                          }
+                        } catch (e) {
+                          return 'Invalid phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             
@@ -362,25 +370,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Theme.of(context).colorScheme.surface,
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
-                  elevation: 0,
-                  disabledBackgroundColor: Colors.blue.withAlpha(150),
+                  elevation: 10,
+                  shadowColor: Colors.amber.withOpacity(0.5),
+                  disabledBackgroundColor: Colors.amber.withAlpha(150),
                 ),
                 child: _isLoading 
                   ? SizedBox(
                       height: 20.h,
                       width: 20.h,
-                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2),
+                      child: const CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
                     )
                   : Text(
                       'Register',
                       style: TextStyle(
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
                       ),
                     ),
               ),
@@ -394,7 +404,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   'Already have an account? ',
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 14.sp),
+                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextButton(
                   onPressed: () {
@@ -406,7 +416,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      color: Theme.of(context).textTheme.titleLarge?.color,
+                      color: Colors.amber,
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
                     ),
@@ -435,21 +445,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       keyboardType: keyboardType,
       validator: validator,
       obscureText: isPassword,
+      style: TextStyle(color: Colors.white, fontSize: 16.sp),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: Theme.of(context).textTheme.bodyMedium?.color, size: 22.sp),
+        prefixIcon: Icon(icon, color: Colors.white70, size: 22.sp),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: const BorderSide(),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
+          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
@@ -460,9 +471,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
-        labelStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 14.sp),
-        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 14.sp),
+        fillColor: Colors.black.withOpacity(0.2),
+        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+        hintStyle: TextStyle(color: Colors.white38, fontSize: 14.sp),
       ),
     );
   }

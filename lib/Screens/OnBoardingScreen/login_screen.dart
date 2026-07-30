@@ -68,11 +68,24 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveLayout(
-        mobile: _buildLoginContent(context),
-        tablet: _buildLoginContent(context),
-        desktop: _buildLoginContent(context),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor, // Deep royal color
+              const Color(0xFF0B132B), // Very dark navy
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ResponsiveLayout(
+          mobile: _buildLoginContent(context),
+          tablet: _buildLoginContent(context),
+          desktop: _buildLoginContent(context),
+        ),
       ),
     );
   }
@@ -85,66 +98,70 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 40.h),
-            TweenAnimationBuilder(
-              duration: const Duration(seconds: 1),
-              tween: Tween<double>(begin: 0, end: 1),
-              builder: (context, double value, child) {
-                return Opacity(opacity: value, child: child);
-              },
-              child: Image.asset(
-                AppImage.app_logo,
-                width: 120.w,
-                height: 120.h,
-              ),
-            ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 60.h),
             Text(
               "Welcome Back!",
               style: TextStyle(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+                fontSize: 32.sp,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 1,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               "Login to your account to continue managing your finances effortlessly.",
-              style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
+              style: TextStyle(fontSize: 16.sp, color: Colors.white.withOpacity(0.7), height: 1.5),
             ),
             SizedBox(height: 40.h),
-            Form(
-              key: _formKey,
-              child: IntlPhoneField(
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: const BorderSide(),
+
+            // Glassmorphism Container
+            Container(
+              padding: EdgeInsets.all(24.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(30.r),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor.withAlpha(50),
-                    ),
-                  ),
-                ),
-                initialCountryCode: 'IN',
-                onChanged: (phone) {
-                  _phoneNumber = phone.completeNumber;
-                },
+                ],
               ),
-            ),
-            SizedBox(height: 20.h),
-            SizedBox(
-              width: double.infinity,
-              height: 55.h,
+              child: Column(
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: IntlPhoneField(
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownTextStyle: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                        ),
+                      ),
+                      initialCountryCode: 'IN',
+                      onChanged: (phone) {
+                        _phoneNumber = phone.completeNumber;
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55.h,
               child: ElevatedButton(
                 onPressed: _isLoading
                     ? null
@@ -298,20 +315,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.amber,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.r),
                   ),
-                  elevation: 5,
+                  elevation: 10,
+                  shadowColor: Colors.amber.withOpacity(0.5),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const CircularProgressIndicator(color: Colors.black)
                     : Text(
                         "Send OTP",
                         style: TextStyle(
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.surface,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
                         ),
                       ),
               ),
@@ -322,7 +340,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text(
                   "Don't have an account? ",
-                  style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white70),
                 ),
                 TextButton(
                   onPressed: () {
@@ -337,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Sign Up",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Theme.of(context).primaryColor,
+                      color: Colors.amber,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -347,6 +365,9 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20.h),
           ],
         ),
+      ),
+      ],
+      ),
       ),
     );
   }

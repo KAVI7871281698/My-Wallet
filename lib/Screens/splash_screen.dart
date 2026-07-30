@@ -47,63 +47,83 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveLayout(
-        mobile: _buildSplashContent(),
-        tablet: _buildSplashContent(),
-        desktop: _buildSplashContent(),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).primaryColor, // Deep royal color
+              const Color(0xFF0B132B), // Very dark navy
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: ResponsiveLayout(
+          mobile: _buildSplashContent(),
+          tablet: _buildSplashContent(),
+          desktop: _buildSplashContent(),
+        ),
       ),
     );
   }
 
   Widget _buildSplashContent() {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TweenAnimationBuilder(
-            duration: const Duration(seconds: 2),
-            tween: Tween<double>(begin: 0, end: 1),
-            builder: (context, double value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.scale(
-                  scale: 0.9 + (0.1 * value),
-                  child: child,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TweenAnimationBuilder(
+          duration: const Duration(seconds: 2),
+          tween: Tween<double>(begin: 0, end: 1),
+          builder: (context, double value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.scale(
+                scale: 0.8 + (0.2 * value),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withOpacity(0.15 * value),
+                        blurRadius: 50 * value,
+                        spreadRadius: 10 * value,
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(AppImage.appIcon, width: 200.w, height: 200.h),
                 ),
-              );
-            },
-            child: Image.asset(AppImage.app_logo, width: 250.w, height: 250.h),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: 40.h),
+        Text(
+          'MY WALLET',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28.sp,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 6.w,
           ),
-          SizedBox(height: 30.h),
-          Text(
-            'MY WALLET',
-            style: TextStyle(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 4.w,
-            ),
+        ),
+        SizedBox(height: 12.h),
+        Text(
+          'PREMIUM SECURE',
+          style: TextStyle(
+            color: Colors.amber.shade300,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 4.w,
           ),
-          SizedBox(height: 10.h),
-          Text(
-            'Secure & Simple',
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w300,
-              letterSpacing: 2.w,
-            ),
-          ),
-          SizedBox(height: 80.h),
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary.withOpacity(0.2)),
-            strokeWidth: 2,
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: 80.h),
+        CircularProgressIndicator(
+          valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
+          strokeWidth: 2,
+        ),
+      ],
     );
   }
 }

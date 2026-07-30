@@ -68,11 +68,17 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveLayout(
-        mobile: _buildLoginContent(context),
-        tablet: _buildLoginContent(context),
-        desktop: _buildLoginContent(context),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          color: Color(0xFF2C2E33),
+        ),
+        child: ResponsiveLayout(
+          mobile: _buildLoginContent(context),
+          tablet: _buildLoginContent(context),
+          desktop: _buildLoginContent(context),
+        ),
       ),
     );
   }
@@ -86,65 +92,58 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 40.h),
-            TweenAnimationBuilder(
-              duration: const Duration(seconds: 1),
-              tween: Tween<double>(begin: 0, end: 1),
-              builder: (context, double value, child) {
-                return Opacity(opacity: value, child: child);
-              },
+            Center(
               child: Image.asset(
-                AppImage.app_logo,
-                width: 120.w,
-                height: 120.h,
+                AppImage.loginIllustration,
+                height: 250.h,
+                fit: BoxFit.contain,
               ),
             ),
             SizedBox(height: 20.h),
-            Text(
-              "Welcome Back!",
-              style: TextStyle(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+            Center(
+              child: Text(
+                "Login to Your Account",
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              "Login to your account to continue managing your finances effortlessly.",
-              style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
             ),
             SizedBox(height: 40.h),
-            Form(
-              key: _formKey,
-              child: IntlPhoneField(
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: const BorderSide(),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor,
+            
+            Column(
+              children: [
+                  Form(
+                    key: _formKey,
+                    child: IntlPhoneField(
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownTextStyle: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                        ),
+                      ),
+                      initialCountryCode: 'IN',
+                      onChanged: (phone) {
+                        _phoneNumber = phone.completeNumber;
+                      },
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor.withAlpha(50),
-                    ),
-                  ),
-                ),
-                initialCountryCode: 'IN',
-                onChanged: (phone) {
-                  _phoneNumber = phone.completeNumber;
-                },
-              ),
-            ),
-            SizedBox(height: 20.h),
-            SizedBox(
-              width: double.infinity,
-              height: 55.h,
+                  SizedBox(height: 20.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55.h,
               child: ElevatedButton(
                 onPressed: _isLoading
                     ? null
@@ -179,42 +178,49 @@ class _LoginScreenState extends State<LoginScreen> {
                                 verificationId: verificationId,
                               );
 
-                              if (otp != null && mounted) {
+                              if (otp != null && context.mounted) {
                                 setState(() => _isLoading = true);
-                                // Fetch and cache user data for immediate show in Dashboard
-                                User? user = FirebaseAuth.instance.currentUser;
-                                if (user != null) {
-                                  // NOW we check if they are registered!
-                                  bool userExists = await _authService.checkUserExists(_phoneNumber);
-                                  
-                                  if (!userExists) {
-                                    // If they authenticated but aren't registered in the DB
-                                    await FirebaseAuth.instance.signOut();
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-                                      KSnackBar.showError(
-                                        context,
-                                        message: "Number not registered. Please sign up first.",
-                                      );
+                                try {
+                                  // Fetch and cache user data for immediate show in Dashboard
+                                  User? user = FirebaseAuth.instance.currentUser;
+                                  if (user != null) {
+                                    // NOW we check if they are registered!
+                                    bool userExists = await _authService.checkUserExists(_phoneNumber);
+                                    
+                                    if (!userExists) {
+                                      // If they authenticated but aren't registered in the DB
+                                      await FirebaseAuth.instance.signOut();
+                                      if (context.mounted) {
+                                        setState(() => _isLoading = false);
+                                        KSnackBar.showError(
+                                          context,
+                                          message: "Number not registered. Please sign up first.",
+                                        );
+                                      }
+                                      return;
                                     }
-                                    return;
+
+                                    UserModel? data = await _authService.getUserData(user.uid);
+                                    if (data != null) {
+                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      await prefs.setString('user_name', data.name);
+                                      await prefs.setString('user_email', data.email);
+                                    }
                                   }
 
-                                  UserModel? data = await _authService.getUserData(user.uid);
-                                  if (data != null) {
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    await prefs.setString('user_name', data.name);
-                                    await prefs.setString('user_email', data.email);
+                                  if (context.mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Dashboard(),
+                                      ),
+                                    );
                                   }
-                                }
-
-                                if (mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Dashboard(),
-                                    ),
-                                  );
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    setState(() => _isLoading = false);
+                                    KSnackBar.showError(context, message: "Login failed: $e");
+                                  }
                                 }
                               }
                             },
@@ -237,36 +243,43 @@ class _LoginScreenState extends State<LoginScreen> {
                                       phoneNumber: _phoneNumber,
                                       verificationId: mockId,
                                     );
-                                    if (otp != null && mounted) {
+                                    if (otp != null && context.mounted) {
                                       setState(() => _isLoading = true);
-                                      // Fetch and cache user data for immediate show in Dashboard
-                                      User? user =
-                                          FirebaseAuth.instance.currentUser;
-                                      if (user != null) {
-                                        UserModel? data = await _authService
-                                            .getUserData(user.uid);
-                                        if (data != null) {
-                                          SharedPreferences prefs =
-                                              await SharedPreferences.getInstance();
-                                          await prefs.setString(
-                                            'user_name',
-                                            data.name,
-                                          );
-                                          await prefs.setString(
-                                            'user_email',
-                                            data.email,
+                                      try {
+                                        // Fetch and cache user data for immediate show in Dashboard
+                                        User? user =
+                                            FirebaseAuth.instance.currentUser;
+                                        if (user != null) {
+                                          UserModel? data = await _authService
+                                              .getUserData(user.uid);
+                                          if (data != null) {
+                                            SharedPreferences prefs =
+                                                await SharedPreferences.getInstance();
+                                            await prefs.setString(
+                                              'user_name',
+                                              data.name,
+                                            );
+                                            await prefs.setString(
+                                              'user_email',
+                                              data.email,
+                                            );
+                                          }
+                                        }
+
+                                        if (context.mounted) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const Dashboard(),
+                                            ),
                                           );
                                         }
-                                      }
-
-                                      if (mounted) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const Dashboard(),
-                                          ),
-                                        );
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          setState(() => _isLoading = false);
+                                          KSnackBar.showError(context, message: "Login failed: $e");
+                                        }
                                       }
                                     }
                                   },
@@ -298,20 +311,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: const Color(0xFFFF8C00),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.r),
                   ),
-                  elevation: 5,
+                  elevation: 10,
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const CircularProgressIndicator(color: Colors.black)
                     : Text(
                         "Send OTP",
                         style: TextStyle(
                           fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.surface,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
                         ),
                       ),
               ),
@@ -322,22 +336,26 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text(
                   "Don't have an account? ",
-                  style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white70),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => const RegisterScreen(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(opacity: animation, child: child);
+                        },
+                        transitionDuration: const Duration(milliseconds: 300),
                       ),
                     );
                   },
                   child: Text(
-                    "Sign Up",
+                    "Create Account",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Theme.of(context).primaryColor,
+                      color: const Color(0xFFFF8C00),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -345,6 +363,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
             SizedBox(height: 20.h),
+          ],
+        ),
           ],
         ),
       ),

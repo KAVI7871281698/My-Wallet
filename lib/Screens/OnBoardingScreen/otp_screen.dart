@@ -123,16 +123,16 @@ class _OtpScreenState extends State<OtpScreen> {
       height: 60.h,
       textStyle: TextStyle(
         fontSize: 22.sp,
-        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
-        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        fontWeight: FontWeight.w900,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withAlpha(10),
-        borderRadius: BorderRadius.circular(12.r),
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: Colors.transparent),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).primaryColor.withAlpha(20),
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -142,8 +142,14 @@ class _OtpScreenState extends State<OtpScreen> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black, width: 1.5),
+        border: Border.all(color: const Color(0xFFFF8C00), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF8C00).withOpacity(0.2),
+            blurRadius: 15,
+            spreadRadius: 2,
+          ),
+        ],
       ),
     );
 
@@ -152,10 +158,13 @@ class _OtpScreenState extends State<OtpScreen> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: const Color(0xFF2C2E33), // Solid dark grey
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30.r),
           topRight: Radius.circular(30.r),
+        ),
+        border: Border(
+          top: BorderSide(color: Colors.white.withOpacity(0.1), width: 1.5),
         ),
       ),
       child: SingleChildScrollView(
@@ -166,10 +175,10 @@ class _OtpScreenState extends State<OtpScreen> {
             children: [
             // Handle Bar
             Container(
-              width: 40.w,
+              width: 50.w,
               height: 5.h,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(10.r),
               ),
             ),
@@ -179,35 +188,37 @@ class _OtpScreenState extends State<OtpScreen> {
             Container(
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withAlpha(20),
+                color: const Color(0xFFFF8C00).withOpacity(0.1),
                 shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFFF8C00).withOpacity(0.3)),
               ),
-              child: Icon(Icons.security_rounded, size: 40.r, color: Theme.of(context).primaryColor),
+              child: Icon(Icons.security_rounded, size: 40.r, color: const Color(0xFFFF8C00)),
             ),
             SizedBox(height: 20.h),
             Text(
               'OTP Verification',
               style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
+                fontSize: 26.sp,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 1,
               ),
             ),
-            SizedBox(height: 10.h),
+            SizedBox(height: 12.h),
             Text.rich(
               TextSpan(
                 text: 'We have sent a verification code to\n',
                 children: [
                   TextSpan(
                     text: widget.phoneNumber,
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF8C00)),
                   ),
                 ],
               ),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14.sp,
-                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                fontSize: 15.sp,
+                color: Colors.white.withOpacity(0.7),
                 height: 1.5,
               ),
             ),
@@ -229,8 +240,8 @@ class _OtpScreenState extends State<OtpScreen> {
                   Container(
                     margin: EdgeInsets.only(bottom: 9.h),
                     width: 22.w,
-                    height: 1.h,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    height: 2.h,
+                    color: const Color(0xFFFF8C00),
                   ),
                 ],
               ),
@@ -244,7 +255,7 @@ class _OtpScreenState extends State<OtpScreen> {
               children: [
                 Text(
                   "Didn't receive the code? ",
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.white70),
                 ),
                 TextButton(
                   onPressed: _canResend ? _startResendTimer : null,
@@ -253,7 +264,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: _canResend ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                      color: _canResend ? const Color(0xFFFF8C00) : Colors.white38,
                     ),
                   ),
                 ),
@@ -269,12 +280,14 @@ class _OtpScreenState extends State<OtpScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : () => _verifyOtp(_pinController.text),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Theme.of(context).colorScheme.surface,
+                  backgroundColor: const Color(0xFFFF8C00),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
-                  elevation: 0,
+                  elevation: 10,
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFFFF8C00).withAlpha(150),
                 ),
                 child: _isLoading
                     ? SizedBox(
@@ -288,8 +301,9 @@ class _OtpScreenState extends State<OtpScreen> {
                     : Text(
                         'Verify',
                         style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
                         ),
                       ),
               ),

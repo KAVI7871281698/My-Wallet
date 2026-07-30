@@ -56,11 +56,17 @@ class CustomBottomBar extends StatelessWidget {
               tabBackgroundColor: Colors.transparent,
               color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), // Inactive icon color
               // A vibrant gradient for the active tab (trending)
-              tabBackgroundGradient: LinearGradient(
-                colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              tabBackgroundGradient: index == 2 
+                  ? const LinearGradient(
+                      colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : LinearGradient(
+                      colors: [Theme.of(context).primaryColor, Theme.of(context).colorScheme.secondary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
               tabBorderRadius: 25.r,
               curve: Curves.easeOutExpo,
               tabs: [

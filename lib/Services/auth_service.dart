@@ -47,6 +47,20 @@ class AuthService {
     }
   }
 
+  /// Update User Data
+  Future<void> updateUser(String uid, {required String name, required String email}) async {
+    try {
+      await _usersCollection.doc(uid).update({
+        'name': name,
+        'email': email,
+      });
+      debugPrint("User data updated in Firestore for UID: $uid");
+    } catch (e) {
+      debugPrint("Error updating user data: $e");
+      rethrow;
+    }
+  }
+
   /// Get Current User Data
   Future<UserModel?> getUserData(String uid) async {
     try {

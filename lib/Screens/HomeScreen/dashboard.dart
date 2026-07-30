@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_wallet/Core/app_image.dart';
 import '../../Bloc/bloc.dart';
 import '../../Bloc/bloc_event.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import '../../Widgets/custome_bottom_bar.dart';
-import '../../Widgets/snack_bar.dart';
-import '../OnBoardingScreen/login_screen.dart';
-import 'slider_menu.dart';
 import 'expense_screen.dart';
 import 'profile_screen.dart';
 import 'saving_screen.dart';
@@ -34,7 +31,6 @@ class _DashboardState extends State<Dashboard> {
   int _currentIndex = 0;
   String _selectedFilter = "Month"; // Default filter
   DateTime _focusedDate = DateTime.now();
-  final GlobalKey<SideMenuState> _sideMenuKey = GlobalKey<SideMenuState>();
   late PageController _pageController = PageController(
     initialPage: _currentIndex,
   );
@@ -158,92 +154,52 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return SideMenu(
-      key: _sideMenuKey,
-      menu: SliderMenu(
-        userName: _userName,
-        userEmail: _userEmail,
-        selectedTitle: _currentIndex == 0
-            ? "Home"
-            : _currentIndex == 1
-            ? "My Wallet"
-            : _currentIndex == 2
-            ? "Savings"
-            : "Profile",
-        onItemClick: (title) async {
-          _sideMenuKey.currentState!.closeSideMenu();
-          if (title == "Home") {
-            _onItemTapped(0);
-          } else if (title == "My Wallet") {
-            _onItemTapped(1);
-          } else if (title == "Logout") {
-            try {
-              await FirebaseAuth.instance.signOut();
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.clear();
-              if (mounted) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
-              }
-            } catch (e) {
-              if (mounted)
-                KSnackBar.showError(context, message: "Logout failed: $e");
-            }
-          }
-        },
-      ),
-      type: SideMenuType.shrinkNSlide,
-      background: Theme.of(context).primaryColor,
-      radius: BorderRadius.circular(30.r),
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: Column(
-          children: [
-            _buildModernHeader(),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: _currentIndex == 0
-                    ? BorderRadius.zero
-                    : BorderRadius.vertical(top: Radius.circular(30.r)),
-                child: PageView(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  children: [
-                    _HomeContent(
-                      expenseStream: _expenseStream,
-                      cachedExpenses: _cachedExpenses,
-                      userName: _userName,
-                      selectedFilter: _selectedFilter,
-                      focusedDate: _focusedDate,
-                      onFilterChanged: (filter) =>
-                          setState(() => _selectedFilter = filter),
-                      onDateChanged: (date) =>
-                          setState(() => _focusedDate = date),
-                      onRefresh: _loadUserData,
-                      saveCacheFunc: _saveExpensesToCache,
-                      buildHomeContent: _buildHomeContent,
-                    ),
-                    const ExpenseScreen(),
-                    const SavingScreen(),
-                    const ProfileScreen(),
-                  ],
-                ),
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Column(
+        children: [
+          _buildModernHeader(),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: _currentIndex == 0
+                  ? BorderRadius.zero
+                  : BorderRadius.vertical(top: Radius.circular(30.r)),
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                children: [
+                  _HomeContent(
+                    expenseStream: _expenseStream,
+                    cachedExpenses: _cachedExpenses,
+                    userName: _userName,
+                    selectedFilter: _selectedFilter,
+                    focusedDate: _focusedDate,
+                    onFilterChanged: (filter) =>
+                        setState(() => _selectedFilter = filter),
+                    onDateChanged: (date) =>
+                        setState(() => _focusedDate = date),
+                    onRefresh: _loadUserData,
+                    saveCacheFunc: _saveExpensesToCache,
+                    buildHomeContent: _buildHomeContent,
+                  ),
+                  const ExpenseScreen(),
+                  const SavingScreen(),
+                  const ProfileScreen(),
+                ],
               ),
             ),
-          ],
-        ),
-        bottomNavigationBar: CustomBottomBar(
-          index: _currentIndex,
-          onTap: _onItemTapped,
-        ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomBar(
+        index: _currentIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
@@ -279,20 +235,23 @@ class _DashboardState extends State<Dashboard> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: Icon(
-              Icons.align_horizontal_left_rounded,
-              color: Theme.of(context).primaryColor,
-              size: 28.sp,
+          Container(
+            height: 35.h,
+            width: 40.h,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: const DecorationImage(
+                image: AssetImage(AppImage.appIcon),
+                fit: BoxFit.cover,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).primaryColor.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            onPressed: () {
-              final state = _sideMenuKey.currentState!;
-              if (state.isOpened) {
-                state.closeSideMenu();
-              } else {
-                state.openSideMenu();
-              }
-            },
           ),
           Expanded(
             child: Column(
@@ -404,22 +363,25 @@ class _DashboardState extends State<Dashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Modern Balance Card (Reduced Height)
+          // 1. Credit Card Style Balance
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+            padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
+                colors: [
+                  Theme.of(context).primaryColor,
+                  Theme.of(context).colorScheme.secondary,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(25.r),
+              borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).primaryColor.withAlpha(76),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -430,168 +392,177 @@ class _DashboardState extends State<Dashboard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Chip icon simulation
+                    Container(
+                      width: 40.w,
+                      height: 28.h,
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade200,
+                        borderRadius: BorderRadius.circular(6.r),
+                        border: Border.all(
+                          color: Colors.amber.shade400,
+                          width: 1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.sim_card_outlined,
+                          size: 20.sp,
+                          color: Colors.amber.shade800,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Premium",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+                Text(
+                  "Total $_selectedFilter Expense",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 13.sp,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  "₹ ${totalFilterExpense.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Total $_selectedFilter Expenses",
+                          "CARD HOLDER",
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13.sp,
+                            color: Colors.white54,
+                            fontSize: 10.sp,
+                            letterSpacing: 1,
                           ),
                         ),
                         Text(
-                          "₹ ${totalFilterExpense.toStringAsFixed(0)}",
+                          _userName.toUpperCase(),
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.surface,
-                            fontSize: 28.sp,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
                           ),
                         ),
                       ],
                     ),
-                    // Modern Calendar Filter Menu
-                    GestureDetector(
-                      onTap: () async {
-                        DateTime? dateTime = await showOmniDateTimePicker(
-                          context: context,
-                          initialDate: _focusedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
+                    // MasterCard/Visa circles simulation
+                    Row(
+                      children: [
+                        Container(
+                          width: 24.w,
+                          height: 24.w,
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.8),
+                            shape: BoxShape.circle,
                           ),
-                          is24HourMode: false,
-                          isShowSeconds: false,
-                          minutesInterval: 1,
-                          secondsInterval: 1,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(16),
-                          ),
-                          constraints: const BoxConstraints(
-                            maxWidth: 350,
-                            maxHeight: 650,
-                          ),
-                          transitionBuilder: (context, anim1, anim2, child) {
-                            return FadeTransition(opacity: anim1, child: child);
-                          },
-                          transitionDuration: const Duration(milliseconds: 200),
-                          barrierDismissible: true,
-                        );
-                        if (dateTime != null) {
-                          setState(() {
-                            _focusedDate = dateTime;
-                            // Optionally switch filter based on how precise they picked
-                            // For simplicity, we keep the filter but update the focus
-                          });
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(10.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(40),
-                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                        child: Icon(
-                          Icons.calendar_month_rounded,
-                          color: Theme.of(context).colorScheme.surface,
-                          size: 20.sp,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15.h),
-
-                // Expense Summary Line (Modern Pills)
-                Row(
-                  children: [
-                    _buildSmallPill("Day"),
-                    SizedBox(width: 8.w),
-                    _buildSmallPill("Month"),
-                    SizedBox(width: 8.w),
-                    _buildSmallPill("Year"),
-                    const Spacer(),
-                    Text(
-                      _selectedFilter == "Day"
-                          ? DateFormat('MMM dd, yyyy').format(_focusedDate)
-                          : _selectedFilter == "Month"
-                          ? DateFormat('MMMM yyyy').format(_focusedDate)
-                          : DateFormat('yyyy').format(_focusedDate),
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 15.h),
-
-                // Today's Spent Section (Smaller)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 15.w,
-                    vertical: 12.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(20),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(color: Colors.white.withAlpha(30)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.bolt_rounded,
-                        color: Colors.orangeAccent,
-                        size: 18.sp,
-                      ),
-                      SizedBox(width: 12.w),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Today's Spending",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10.sp,
+                        Transform.translate(
+                          offset: const Offset(-10, 0),
+                          child: Container(
+                            width: 24.w,
+                            height: 24.w,
+                            decoration: BoxDecoration(
+                              color: Colors.orangeAccent.withOpacity(0.8),
+                              shape: BoxShape.circle,
                             ),
                           ),
-                          Text(
-                            "₹ ${todayExpense.toStringAsFixed(0)}",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.surface,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 2.h,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(40),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          "Live",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.surface,
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+
+          SizedBox(height: 25.h),
+
+          // 2. Segmented Filter & Calendar Row
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 45.h,
+                  padding: EdgeInsets.all(4.r),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).dividerColor.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildSegmentBtn("Day")),
+                      Expanded(child: _buildSegmentBtn("Month")),
+                      Expanded(child: _buildSegmentBtn("Year")),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              GestureDetector(
+                onTap: () async {
+                  DateTime? dateTime = await showOmniDateTimePicker(
+                    context: context,
+                    initialDate: _focusedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    is24HourMode: false,
+                    isShowSeconds: false,
+                  );
+                  if (dateTime != null) {
+                    setState(() => _focusedDate = dateTime);
+                  }
+                },
+                child: Container(
+                  height: 45.h,
+                  width: 45.h,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    Icons.calendar_month_rounded,
+                    color: Theme.of(context).primaryColor,
+                    size: 22.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 25.h),
+
+          // 3. Quick Action Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildActionBtn(Icons.arrow_upward_rounded, "Send"),
+              _buildActionBtn(Icons.arrow_downward_rounded, "Receive"),
+              _buildActionBtn(Icons.account_balance_wallet_rounded, "Top Up"),
+              _buildActionBtn(Icons.more_horiz_rounded, "More"),
+            ],
           ),
 
           SizedBox(height: 35.h),
@@ -653,25 +624,65 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _buildSmallPill(String title) {
+  Widget _buildSegmentBtn(String title) {
     bool isSelected = _selectedFilter == title;
     return GestureDetector(
       onTap: () => setState(() => _selectedFilter = title),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withAlpha(30),
-          borderRadius: BorderRadius.circular(10.r),
+          color: isSelected
+              ? Theme.of(context).colorScheme.surface
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8.r),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
         ),
         child: Text(
           title,
           style: TextStyle(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.white,
-            fontSize: 10.sp,
-            fontWeight: FontWeight.bold,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+            fontSize: 13.sp,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildActionBtn(IconData icon, String label) {
+    return Column(
+      children: [
+        Container(
+          width: 50.w,
+          height: 50.w,
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: Theme.of(context).primaryColor, size: 24.sp),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
@@ -740,7 +751,12 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Text(
                   category,
-                  style: TextStyle(fontSize: 12.sp, color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6)),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                  ),
                 ),
               ],
             ),

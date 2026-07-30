@@ -92,11 +92,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveLayout(
-        mobile: _buildBody(context),
-        tablet: _buildBody(context, isTablet: true),
-        desktop: _buildBody(context, isDesktop: true),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          color: Color(0xFF2C2E33),
+        ),
+        child: ResponsiveLayout(
+          mobile: _buildBody(context),
+          tablet: _buildBody(context, isTablet: true),
+          desktop: _buildBody(context, isDesktop: true),
+        ),
       ),
     );
   }
@@ -106,136 +112,115 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 60.h),
-            // App Logo
-            TweenAnimationBuilder(
-              duration: const Duration(seconds: 1),
-              tween: Tween<double>(begin: 0, end: 1),
-              builder: (context, double value, child) {
-                return Opacity(
-                  opacity: value,
-                  child: Transform.scale(
-                    scale: 0.8 + (0.2 * value),
-                    child: child,
-                  ),
-                );
-              },
+            SizedBox(height: 40.h),
+            Center(
               child: Image.asset(
-                AppImage.app_logo,
-                width: 100.w,
-                height: 100.h,
+                AppImage.loginIllustration,
+                height: 250.h,
+                fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: 30.h),
-            Text(
-              'Create Account',
-              style: TextStyle(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.titleLarge?.color,
-                letterSpacing: -0.5,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              'Join us and start managing your wallet',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+            SizedBox(height: 20.h),
+            Center(
+              child: Text(
+                'Create Account',
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             SizedBox(height: 40.h),
             
             Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Name Field
-                  _buildTextField(
-                    controller: _nameController,
-                    label: 'Full Name',
-                    hint: 'John Doe',
-                    icon: Icons.person_outline,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  
-                  // Email Field
-                  _buildTextField(
-                    controller: _emailController,
-                    label: 'Email Address',
-                    hint: 'example@mail.com',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  
-                  // Mobile Field
-                  IntlPhoneField(
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      hintText: '98765 43210',
-                      prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: const BorderSide(),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: BorderSide(color: Colors.red.shade300),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.r),
-                        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                    ),
-                    initialCountryCode: 'IN',
-                    onChanged: (phone) {
-                      _phoneNumber = phone.completeNumber;
-                    },
-                    validator: (phone) {
-                      if (phone == null || phone.number.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      try {
-                        if (!phone.isValidNumber()) {
-                          return 'Please enter a valid phone number';
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // Name Field
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      hint: 'John Doe',
+                      icon: Icons.person_outline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
                         }
-                      } catch (e) {
-                        return 'Invalid phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    
+                    // Email Field
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      hint: 'example@mail.com',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    
+                    // Mobile Field
+                    IntlPhoneField(
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownTextStyle: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide(color: Colors.red.shade300),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                        ),
+                      ),
+                      initialCountryCode: 'IN',
+                      onChanged: (phone) {
+                        _phoneNumber = phone.completeNumber;
+                      },
+                      validator: (phone) {
+                        if (phone == null || phone.number.isEmpty) {
+                          return 'Please enter your phone number';
+                        }
+                        try {
+                          if (!phone.isValidNumber()) {
+                            return 'Please enter a valid phone number';
+                          }
+                        } catch (e) {
+                          return 'Invalid phone number';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
             
             SizedBox(height: 30.h),
             
@@ -279,36 +264,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             verificationId: verificationId,
                           );
 
-                          if (code != null) {
+                          if (code != null && context.mounted) {
                             // 4. OTP Verified! Now save to Firestore
                             setState(() => _isLoading = true);
-                            
-                            debugPrint("======= SIGNUP DATA =======");
-                            debugPrint("Name: ${_nameController.text.trim()}");
-                            debugPrint("Email: ${_emailController.text.trim()}");
-                            debugPrint("Mobile: $_phoneNumber");
-                            debugPrint("Latitude: ${details['lat']}");
-                            debugPrint("Longitude: ${details['lng']}");
-                            debugPrint("Device ID: ${details['deviceId']}");
-                            debugPrint("===========================");
+                            try {
+                              debugPrint("======= SIGNUP DATA =======");
+                              debugPrint("Name: ${_nameController.text.trim()}");
+                              debugPrint("Email: ${_emailController.text.trim()}");
+                              debugPrint("Mobile: $_phoneNumber");
+                              debugPrint("Latitude: ${details['lat']}");
+                              debugPrint("Longitude: ${details['lng']}");
+                              debugPrint("Device ID: ${details['deviceId']}");
+                              debugPrint("===========================");
 
-                            await _authService.signUp(
-                              name: _nameController.text.trim(),
-                              email: _emailController.text.trim(),
-                              mobile: _phoneNumber,
-                            );
+                              await _authService.signUp(
+                                name: _nameController.text.trim(),
+                                email: _emailController.text.trim(),
+                                mobile: _phoneNumber,
+                              );
 
-                            // 4. Update local cache for instant Dashboard greeting
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            await prefs.setString('user_name', _nameController.text.trim());
-                            await prefs.setString('user_email', _emailController.text.trim());
+                              // 4. Update local cache for instant Dashboard greeting
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('user_name', _nameController.text.trim());
+                              await prefs.setString('user_email', _emailController.text.trim());
 
-                            if (mounted) KSnackBar.showSuccess(context, message: "Account created successfully!");
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const Dashboard()),
-                            );
-                            setState(() => _isLoading = false);
+                              if (context.mounted) {
+                                KSnackBar.showSuccess(context, message: "Account created successfully!");
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                setState(() => _isLoading = false);
+                                KSnackBar.showError(context, message: "Registration failed: $e");
+                              }
+                            }
                           }
                         }, 
                         onVerificationFailed: (e) {
@@ -322,21 +314,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               onCodeSent: (mockId) async {
                                 setState(() => _isLoading = false);
                                 final otp = await OtpScreen.show(context, phoneNumber: _phoneNumber, verificationId: mockId);
-                                if (otp != null && mounted) {
+                                if (otp != null && context.mounted) {
                                   // SAVE TO FIRESTORE EVEN IN MOCK MODE
                                   setState(() => _isLoading = true);
-                                  await _authService.signUp(
-                                    name: _nameController.text.trim(),
-                                    email: _emailController.text.trim(),
-                                    mobile: _phoneNumber,
-                                  );
-                                  
-                                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                                  await prefs.setString('user_name', _nameController.text.trim());
-                                  await prefs.setString('user_email', _emailController.text.trim());
+                                  try {
+                                    await _authService.signUp(
+                                      name: _nameController.text.trim(),
+                                      email: _emailController.text.trim(),
+                                      mobile: _phoneNumber,
+                                    );
+                                    
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    await prefs.setString('user_name', _nameController.text.trim());
+                                    await prefs.setString('user_email', _emailController.text.trim());
 
-                                  if (mounted) {
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      setState(() => _isLoading = false);
+                                      KSnackBar.showError(context, message: "Registration failed: $e");
+                                    }
                                   }
                                 }
                               }, 
@@ -362,25 +361,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Theme.of(context).colorScheme.surface,
+                  backgroundColor: const Color(0xFFFF8C00),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
-                  elevation: 0,
-                  disabledBackgroundColor: Colors.blue.withAlpha(150),
+                  elevation: 10,
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFFFF8C00).withAlpha(150),
                 ),
                 child: _isLoading 
                   ? SizedBox(
                       height: 20.h,
                       width: 20.h,
-                      child: CircularProgressIndicator(color: Theme.of(context).colorScheme.surface, strokeWidth: 2),
+                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
                   : Text(
                       'Register',
                       style: TextStyle(
                         fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
                       ),
                     ),
               ),
@@ -394,19 +395,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   'Already have an account? ',
-                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6), fontSize: 14.sp),
+                  style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    );
+                    Navigator.pop(context);
                   },
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      color: Theme.of(context).textTheme.titleLarge?.color,
+                      color: const Color(0xFFFF8C00),
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
                     ),
@@ -435,21 +433,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       keyboardType: keyboardType,
       validator: validator,
       obscureText: isPassword,
+      style: TextStyle(color: Colors.white, fontSize: 16.sp),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: Theme.of(context).textTheme.bodyMedium?.color, size: 22.sp),
+        prefixIcon: Icon(icon, color: Colors.white70, size: 22.sp),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: const BorderSide(),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor.withAlpha(50)),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFFF8C00), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
@@ -460,9 +459,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
-        labelStyle: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 14.sp),
-        hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5), fontSize: 14.sp),
+        fillColor: Colors.black.withOpacity(0.2),
+        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+        hintStyle: TextStyle(color: Colors.white38, fontSize: 14.sp),
       ),
     );
   }

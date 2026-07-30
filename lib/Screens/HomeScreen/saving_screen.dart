@@ -109,25 +109,72 @@ class _SavingScreenState extends State<SavingScreen> {
                   duration: const Duration(milliseconds: 600),
                   child: Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(24.r),
+                    padding: EdgeInsets.all(24.w),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF00b09b), Color(0xFF96c93d)],
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(30.r),
+                      borderRadius: BorderRadius.circular(24.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.green.withAlpha(76),
-                          blurRadius: 15,
+                          color: const Color(0xFF764BA2).withAlpha(76),
+                          blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Leaf/Savings icon simulation
+                            Container(
+                              width: 40.w,
+                              height: 28.h,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6.r),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.eco_rounded,
+                                  size: 20.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            _buildDateFilterIcon(),
+                          ],
+                        ),
+                        SizedBox(height: 24.h),
+                        Text(
+                          "Total $_selectedFilter Savings",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 13.sp,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          formatter.format(totalSavings),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32.sp,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        SizedBox(height: 20.h),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -135,56 +182,47 @@ class _SavingScreenState extends State<SavingScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Total $_selectedFilter Savings",
+                                  "STATUS",
                                   style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14.sp,
+                                    color: Colors.white54,
+                                    fontSize: 10.sp,
+                                    letterSpacing: 1,
                                   ),
                                 ),
-                                SizedBox(height: 5.h),
                                 Text(
-                                  formatter.format(totalSavings),
+                                  totalSavings > 0 ? "ON TRACK" : "NO DEPOSITS",
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.surface,
-                                    fontSize: 32.sp,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.5,
                                   ),
                                 ),
                               ],
                             ),
-                            // Modern Date Filter Popup
-                            _buildDateFilterIcon(),
-                          ],
-                        ),
-                        SizedBox(height: 20.h),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _selectedFilter == "Month"
-                                        ? "Status for ${DateFormat('MMMM yyyy').format(_focusedDate)}"
-                                        : "Status for ${DateFormat('yyyy').format(_focusedDate)}",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12.sp,
+                            // Decorative circles simulation
+                            Row(
+                              children: [
+                                Container(
+                                  width: 24.w,
+                                  height: 24.w,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.3),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                Transform.translate(
+                                  offset: const Offset(-10, 0),
+                                  child: Container(
+                                    width: 24.w,
+                                    height: 24.w,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.5),
+                                      shape: BoxShape.circle,
                                     ),
                                   ),
-                                  Text(
-                                    totalSavings > 0
-                                        ? "Great Progress!"
-                                        : "Deposit to Start",
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.surface,
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -195,44 +233,63 @@ class _SavingScreenState extends State<SavingScreen> {
               },
             ),
 
-            SizedBox(height: 30.h),
-
-            FadeInLeft(
-              child: Text(
-                "Add to Savings",
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-            ),
-            SizedBox(height: 15.h),
-
-            // Input Section
+            // Minimalist Deposit Input
             FadeInUp(
-              delay: const Duration(milliseconds: 300),
-              child: Container(
-                padding: EdgeInsets.all(20.r),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(25.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).primaryColor.withAlpha(20),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+              duration: const Duration(milliseconds: 300),
+              child: Center(
                 child: Column(
                   children: [
-                    _buildInputField(
-                      controller: _amountController,
-                      label: "Deposit Amount",
-                      hint: "₹ 0.00",
-                      icon: Icons.account_balance_wallet_rounded,
-                      isNumber: true,
+                    Text(
+                      "Enter Deposit Amount",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withOpacity(0.5),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "₹",
+                          style: TextStyle(
+                            fontSize: 40.sp,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF764BA2),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        IntrinsicWidth(
+                          child: TextField(
+                            controller: _amountController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.color,
+                              fontSize: 50.sp,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -1,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "0",
+                              hintStyle: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.color?.withOpacity(0.2),
+                                fontSize: 50.sp,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -249,7 +306,11 @@ class _SavingScreenState extends State<SavingScreen> {
                 height: 60.h,
                 child: SwipeButton(
                   text: "Deposit Now",
-                  backgroundColor: const Color(0xFF00b09b),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
                   onSwipe: () async {
                     if (_amountController.text.isEmpty) {
                       KSnackBar.showError(
@@ -339,7 +400,7 @@ class _SavingScreenState extends State<SavingScreen> {
               Icon(
                 Icons.calendar_view_month,
                 size: 20,
-                color: Color(0xFF00b09b),
+                color: Color(0xFF764BA2),
               ),
               SizedBox(width: 10),
               Text("Show Month View"),
@@ -350,7 +411,7 @@ class _SavingScreenState extends State<SavingScreen> {
           value: "Year",
           child: Row(
             children: [
-              Icon(Icons.calendar_view_day, size: 20, color: Color(0xFF00b09b)),
+              Icon(Icons.calendar_view_day, size: 20, color: Color(0xFF764BA2)),
               SizedBox(width: 10),
               Text("Show Year View"),
             ],
@@ -364,55 +425,11 @@ class _SavingScreenState extends State<SavingScreen> {
               Icon(
                 Icons.edit_calendar_rounded,
                 size: 20,
-                color: Color(0xFF00b09b),
+                color: Color(0xFF764BA2),
               ),
               SizedBox(width: 10),
               Text("Choose Month/Year"),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isNumber = false,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
-        ),
-        SizedBox(height: 10.h),
-        TextField(
-          controller: controller,
-          keyboardType: isNumber
-              ? const TextInputType.numberWithOptions(decimal: true)
-              : TextInputType.text,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, color: const Color(0xFF00b09b)),
-            filled: true,
-            fillColor: Colors.grey.withAlpha(15),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15.r),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 20.w,
-              vertical: 15.h,
-            ),
           ),
         ),
       ],

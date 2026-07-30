@@ -8,6 +8,7 @@ import '../../Services/saving_service.dart';
 import '../../Models/expense_model.dart';
 import '../../Models/saving_model.dart';
 import '../OnBoardingScreen/login_screen.dart';
+import 'edit_profile_screen.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ExpenseService _expenseService = ExpenseService();
   final SavingService _savingService = SavingService();
-  
+
   String _userName = "User";
   String _userEmail = "user@mail.com";
 
@@ -35,7 +36,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('user_name') ?? "User";
-      _userEmail = prefs.getString('user_email') ?? _auth.currentUser?.email ?? "user@mail.com";
+      _userEmail =
+          prefs.getString('user_email') ??
+          _auth.currentUser?.email ??
+          "user@mail.com";
     });
   }
 
@@ -58,7 +62,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -87,7 +94,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: CircleAvatar(
                       radius: 60.r,
-                      backgroundColor: Theme.of(context).primaryColor.withAlpha(30),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).primaryColor.withAlpha(30),
                       child: Icon(
                         Icons.person_rounded,
                         size: 70.r,
@@ -100,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           SizedBox(height: 60.h),
-          
+
           // User Info
           FadeInUp(
             child: Column(
@@ -115,17 +124,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 Text(
                   _userEmail,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey,
+                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                ),
+                SizedBox(height: 12.h),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(
+                          currentName: _userName,
+                          currentEmail: _userEmail,
+                        ),
+                      ),
+                    );
+                    if (result == true) {
+                      _loadUserData();
+                    }
+                  },
+                  icon: Icon(
+                    Icons.edit_rounded,
+                    size: 16.sp,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  label: Text(
+                    "Edit Profile",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.h,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
             ),
           ),
-          
+
           SizedBox(height: 30.h),
-          
+
           // Stats Row
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -137,41 +185,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: (context, savingSnapshot) {
                     final expenses = expenseSnapshot.data ?? [];
                     final savings = savingSnapshot.data ?? [];
-                    
-                    double totalExpense = expenses.fold(0.0, (sum, item) => sum + item.amount);
-                    double totalSaving = savings.fold(0.0, (sum, item) => sum + item.amount);
-                    
+
+                    double totalExpense = expenses.fold(
+                      0.0,
+                      (sum, item) => sum + item.amount,
+                    );
+                    double totalSaving = savings.fold(
+                      0.0,
+                      (sum, item) => sum + item.amount,
+                    );
+
                     final formatter = NumberFormat.compact();
 
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildStatItem("Wallets", "${expenses.length}"),
-                        _buildStatItem("Expenses", "₹${formatter.format(totalExpense)}"),
-                        _buildStatItem("Savings", "₹${formatter.format(totalSaving)}"),
+                        _buildStatItem(
+                          "Expenses",
+                          "₹${formatter.format(totalExpense)}",
+                        ),
+                        _buildStatItem(
+                          "Savings",
+                          "₹${formatter.format(totalSaving)}",
+                        ),
                       ],
                     );
-                  }
+                  },
                 );
-              }
+              },
             ),
           ),
-          
+
           SizedBox(height: 30.h),
-          
+
           // Menu Options
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
               children: [
-                FadeInLeft(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildProfileMenu(
-                    Icons.person_outline_rounded,
-                    "Edit Profile",
-                    Colors.blue,
-                  ),
-                ),
                 FadeInLeft(
                   delay: const Duration(milliseconds: 300),
                   child: _buildProfileMenu(
@@ -203,15 +255,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     "Logout",
                     Colors.red,
                     isLogout: true,
-                    onTap: () async {
-                      await FirebaseAuth.instance.signOut();
-                      if (context.mounted) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          (route) => false,
-                        );
-                      }
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Logout"),
+                            content: const Text(
+                              "Are you sure you want to logout?",
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.r),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(
+                                  "No",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(
+                                    context,
+                                  ).pop(); // Close the dialog
+                                },
+                              ),
+                              TextButton(
+                                child: Text(
+                                  "Yes",
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  Navigator.of(
+                                    context,
+                                  ).pop(); // Close the dialog
+                                  await FirebaseAuth.instance.signOut();
+                                  if (context.mounted) {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                 ),
@@ -238,17 +338,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 12.sp, color: Colors.grey),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProfileMenu(IconData icon, String title, Color color, {bool isLogout = false, VoidCallback? onTap}) {
+  Widget _buildProfileMenu(
+    IconData icon,
+    String title,
+    Color color, {
+    bool isLogout = false,
+    VoidCallback? onTap,
+  }) {
     return Container(
       margin: EdgeInsets.only(bottom: 15.h),
       decoration: BoxDecoration(
@@ -276,7 +379,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
-            color: isLogout ? Colors.red : Theme.of(context).textTheme.bodyLarge?.color,
+            color: isLogout
+                ? Colors.red
+                : Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
         trailing: Icon(

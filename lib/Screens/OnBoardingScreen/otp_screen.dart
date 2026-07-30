@@ -142,10 +142,10 @@ class _OtpScreenState extends State<OtpScreen> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        border: Border.all(color: Colors.amber, width: 2),
+        border: Border.all(color: const Color(0xFFFF8C00), width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.2),
+            color: const Color(0xFFFF8C00).withOpacity(0.2),
             blurRadius: 15,
             spreadRadius: 2,
           ),
@@ -158,7 +158,7 @@ class _OtpScreenState extends State<OtpScreen> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B132B), // Very dark navy
+        color: const Color(0xFF2C2E33), // Solid dark grey
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30.r),
           topRight: Radius.circular(30.r),
@@ -188,11 +188,11 @@ class _OtpScreenState extends State<OtpScreen> {
             Container(
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: const Color(0xFFFF8C00).withOpacity(0.1),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                border: Border.all(color: const Color(0xFFFF8C00).withOpacity(0.3)),
               ),
-              child: Icon(Icons.security_rounded, size: 40.r, color: Colors.amber),
+              child: Icon(Icons.security_rounded, size: 40.r, color: const Color(0xFFFF8C00)),
             ),
             SizedBox(height: 20.h),
             Text(
@@ -211,7 +211,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 children: [
                   TextSpan(
                     text: widget.phoneNumber,
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF8C00)),
                   ),
                 ],
               ),
@@ -241,7 +241,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     margin: EdgeInsets.only(bottom: 9.h),
                     width: 22.w,
                     height: 2.h,
-                    color: Colors.amber,
+                    color: const Color(0xFFFF8C00),
                   ),
                 ],
               ),
@@ -264,7 +264,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: _canResend ? Colors.amber : Colors.white38,
+                      color: _canResend ? const Color(0xFFFF8C00) : Colors.white38,
                     ),
                   ),
                 ),
@@ -280,14 +280,14 @@ class _OtpScreenState extends State<OtpScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : () => _verifyOtp(_pinController.text),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFFFF8C00),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   elevation: 10,
-                  shadowColor: Colors.amber.withOpacity(0.5),
-                  disabledBackgroundColor: Colors.amber.withAlpha(150),
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFFFF8C00).withAlpha(150),
                 ),
                 child: _isLoading
                     ? SizedBox(
@@ -295,7 +295,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         width: 20.h,
                         child: const CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Text(
@@ -303,7 +303,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
               ),

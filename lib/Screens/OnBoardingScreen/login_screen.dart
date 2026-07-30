@@ -71,15 +71,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).primaryColor, // Deep royal color
-              const Color(0xFF0B132B), // Very dark navy
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: const BoxDecoration(
+          color: Color(0xFF2C2E33),
         ),
         child: ResponsiveLayout(
           mobile: _buildLoginContent(context),
@@ -98,40 +91,29 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 60.h),
-            Text(
-              "Welcome Back!",
-              style: TextStyle(
-                fontSize: 32.sp,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 1,
+            SizedBox(height: 40.h),
+            Center(
+              child: Image.asset(
+                AppImage.loginIllustration,
+                height: 250.h,
+                fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              "Login to your account to continue managing your finances effortlessly.",
-              style: TextStyle(fontSize: 16.sp, color: Colors.white.withOpacity(0.7), height: 1.5),
+            SizedBox(height: 20.h),
+            Center(
+              child: Text(
+                "Login to Your Account",
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             SizedBox(height: 40.h),
-
-            // Glassmorphism Container
-            Container(
-              padding: EdgeInsets.all(24.r),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(30.r),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
+            
+            Column(
+              children: [
                   Form(
                     key: _formKey,
                     child: IntlPhoneField(
@@ -196,42 +178,49 @@ class _LoginScreenState extends State<LoginScreen> {
                                 verificationId: verificationId,
                               );
 
-                              if (otp != null && mounted) {
+                              if (otp != null && context.mounted) {
                                 setState(() => _isLoading = true);
-                                // Fetch and cache user data for immediate show in Dashboard
-                                User? user = FirebaseAuth.instance.currentUser;
-                                if (user != null) {
-                                  // NOW we check if they are registered!
-                                  bool userExists = await _authService.checkUserExists(_phoneNumber);
-                                  
-                                  if (!userExists) {
-                                    // If they authenticated but aren't registered in the DB
-                                    await FirebaseAuth.instance.signOut();
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-                                      KSnackBar.showError(
-                                        context,
-                                        message: "Number not registered. Please sign up first.",
-                                      );
+                                try {
+                                  // Fetch and cache user data for immediate show in Dashboard
+                                  User? user = FirebaseAuth.instance.currentUser;
+                                  if (user != null) {
+                                    // NOW we check if they are registered!
+                                    bool userExists = await _authService.checkUserExists(_phoneNumber);
+                                    
+                                    if (!userExists) {
+                                      // If they authenticated but aren't registered in the DB
+                                      await FirebaseAuth.instance.signOut();
+                                      if (context.mounted) {
+                                        setState(() => _isLoading = false);
+                                        KSnackBar.showError(
+                                          context,
+                                          message: "Number not registered. Please sign up first.",
+                                        );
+                                      }
+                                      return;
                                     }
-                                    return;
+
+                                    UserModel? data = await _authService.getUserData(user.uid);
+                                    if (data != null) {
+                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      await prefs.setString('user_name', data.name);
+                                      await prefs.setString('user_email', data.email);
+                                    }
                                   }
 
-                                  UserModel? data = await _authService.getUserData(user.uid);
-                                  if (data != null) {
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    await prefs.setString('user_name', data.name);
-                                    await prefs.setString('user_email', data.email);
+                                  if (context.mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Dashboard(),
+                                      ),
+                                    );
                                   }
-                                }
-
-                                if (mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Dashboard(),
-                                    ),
-                                  );
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    setState(() => _isLoading = false);
+                                    KSnackBar.showError(context, message: "Login failed: $e");
+                                  }
                                 }
                               }
                             },
@@ -254,36 +243,43 @@ class _LoginScreenState extends State<LoginScreen> {
                                       phoneNumber: _phoneNumber,
                                       verificationId: mockId,
                                     );
-                                    if (otp != null && mounted) {
+                                    if (otp != null && context.mounted) {
                                       setState(() => _isLoading = true);
-                                      // Fetch and cache user data for immediate show in Dashboard
-                                      User? user =
-                                          FirebaseAuth.instance.currentUser;
-                                      if (user != null) {
-                                        UserModel? data = await _authService
-                                            .getUserData(user.uid);
-                                        if (data != null) {
-                                          SharedPreferences prefs =
-                                              await SharedPreferences.getInstance();
-                                          await prefs.setString(
-                                            'user_name',
-                                            data.name,
-                                          );
-                                          await prefs.setString(
-                                            'user_email',
-                                            data.email,
+                                      try {
+                                        // Fetch and cache user data for immediate show in Dashboard
+                                        User? user =
+                                            FirebaseAuth.instance.currentUser;
+                                        if (user != null) {
+                                          UserModel? data = await _authService
+                                              .getUserData(user.uid);
+                                          if (data != null) {
+                                            SharedPreferences prefs =
+                                                await SharedPreferences.getInstance();
+                                            await prefs.setString(
+                                              'user_name',
+                                              data.name,
+                                            );
+                                            await prefs.setString(
+                                              'user_email',
+                                              data.email,
+                                            );
+                                          }
+                                        }
+
+                                        if (context.mounted) {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const Dashboard(),
+                                            ),
                                           );
                                         }
-                                      }
-
-                                      if (mounted) {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const Dashboard(),
-                                          ),
-                                        );
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          setState(() => _isLoading = false);
+                                          KSnackBar.showError(context, message: "Login failed: $e");
+                                        }
                                       }
                                     }
                                   },
@@ -315,12 +311,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
+                  backgroundColor: const Color(0xFFFF8C00),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.r),
                   ),
                   elevation: 10,
-                  shadowColor: Colors.amber.withOpacity(0.5),
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.black)
@@ -329,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
               ),
@@ -346,16 +342,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => const RegisterScreen(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(opacity: animation, child: child);
+                        },
+                        transitionDuration: const Duration(milliseconds: 300),
                       ),
                     );
                   },
                   child: Text(
-                    "Sign Up",
+                    "Create Account",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Colors.amber,
+                      color: const Color(0xFFFF8C00),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -365,9 +365,8 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 20.h),
           ],
         ),
-      ),
-      ],
-      ),
+          ],
+        ),
       ),
     );
   }

@@ -425,7 +425,7 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 SizedBox(height: 24.h),
                 Text(
-                  "Total $_selectedFilter Balance",
+                  "Total $_selectedFilter Expense",
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 13.sp,

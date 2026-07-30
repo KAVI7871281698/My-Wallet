@@ -95,15 +95,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).primaryColor, // Deep royal color
-              const Color(0xFF0B132B), // Very dark navy
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: const BoxDecoration(
+          color: Color(0xFF2C2E33),
         ),
         child: ResponsiveLayout(
           mobile: _buildBody(context),
@@ -121,43 +114,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 60.h),
-            Text(
-              'Create Account',
-              style: TextStyle(
-                fontSize: 32.sp,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 1,
+            SizedBox(height: 40.h),
+            Center(
+              child: Image.asset(
+                AppImage.loginIllustration,
+                height: 250.h,
+                fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              'Join us and start managing your wealth today.',
-              style: TextStyle(
-                fontSize: 16.sp,
-                color: Colors.white.withOpacity(0.7),
-                height: 1.5,
+            SizedBox(height: 20.h),
+            Center(
+              child: Text(
+                'Create Account',
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             SizedBox(height: 40.h),
             
-            // Glassmorphism Container
-            Container(
-              padding: EdgeInsets.all(24.r),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(30.r),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Form(
+            Form(
                 key: _formKey,
                 child: Column(
                   children: [
@@ -243,7 +221,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
               ),
-            ),
             
             SizedBox(height: 30.h),
             
@@ -287,36 +264,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             verificationId: verificationId,
                           );
 
-                          if (code != null) {
+                          if (code != null && context.mounted) {
                             // 4. OTP Verified! Now save to Firestore
                             setState(() => _isLoading = true);
-                            
-                            debugPrint("======= SIGNUP DATA =======");
-                            debugPrint("Name: ${_nameController.text.trim()}");
-                            debugPrint("Email: ${_emailController.text.trim()}");
-                            debugPrint("Mobile: $_phoneNumber");
-                            debugPrint("Latitude: ${details['lat']}");
-                            debugPrint("Longitude: ${details['lng']}");
-                            debugPrint("Device ID: ${details['deviceId']}");
-                            debugPrint("===========================");
+                            try {
+                              debugPrint("======= SIGNUP DATA =======");
+                              debugPrint("Name: ${_nameController.text.trim()}");
+                              debugPrint("Email: ${_emailController.text.trim()}");
+                              debugPrint("Mobile: $_phoneNumber");
+                              debugPrint("Latitude: ${details['lat']}");
+                              debugPrint("Longitude: ${details['lng']}");
+                              debugPrint("Device ID: ${details['deviceId']}");
+                              debugPrint("===========================");
 
-                            await _authService.signUp(
-                              name: _nameController.text.trim(),
-                              email: _emailController.text.trim(),
-                              mobile: _phoneNumber,
-                            );
+                              await _authService.signUp(
+                                name: _nameController.text.trim(),
+                                email: _emailController.text.trim(),
+                                mobile: _phoneNumber,
+                              );
 
-                            // 4. Update local cache for instant Dashboard greeting
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            await prefs.setString('user_name', _nameController.text.trim());
-                            await prefs.setString('user_email', _emailController.text.trim());
+                              // 4. Update local cache for instant Dashboard greeting
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('user_name', _nameController.text.trim());
+                              await prefs.setString('user_email', _emailController.text.trim());
 
-                            if (mounted) KSnackBar.showSuccess(context, message: "Account created successfully!");
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const Dashboard()),
-                            );
-                            setState(() => _isLoading = false);
+                              if (context.mounted) {
+                                KSnackBar.showSuccess(context, message: "Account created successfully!");
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const Dashboard()),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                setState(() => _isLoading = false);
+                                KSnackBar.showError(context, message: "Registration failed: $e");
+                              }
+                            }
                           }
                         }, 
                         onVerificationFailed: (e) {
@@ -330,21 +314,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               onCodeSent: (mockId) async {
                                 setState(() => _isLoading = false);
                                 final otp = await OtpScreen.show(context, phoneNumber: _phoneNumber, verificationId: mockId);
-                                if (otp != null && mounted) {
+                                if (otp != null && context.mounted) {
                                   // SAVE TO FIRESTORE EVEN IN MOCK MODE
                                   setState(() => _isLoading = true);
-                                  await _authService.signUp(
-                                    name: _nameController.text.trim(),
-                                    email: _emailController.text.trim(),
-                                    mobile: _phoneNumber,
-                                  );
-                                  
-                                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                                  await prefs.setString('user_name', _nameController.text.trim());
-                                  await prefs.setString('user_email', _emailController.text.trim());
+                                  try {
+                                    await _authService.signUp(
+                                      name: _nameController.text.trim(),
+                                      email: _emailController.text.trim(),
+                                      mobile: _phoneNumber,
+                                    );
+                                    
+                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                    await prefs.setString('user_name', _nameController.text.trim());
+                                    await prefs.setString('user_email', _emailController.text.trim());
 
-                                  if (mounted) {
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      setState(() => _isLoading = false);
+                                      KSnackBar.showError(context, message: "Registration failed: $e");
+                                    }
                                   }
                                 }
                               }, 
@@ -370,27 +361,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFFFF8C00),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),
                   elevation: 10,
-                  shadowColor: Colors.amber.withOpacity(0.5),
-                  disabledBackgroundColor: Colors.amber.withAlpha(150),
+                  shadowColor: const Color(0xFFFF8C00).withOpacity(0.5),
+                  disabledBackgroundColor: const Color(0xFFFF8C00).withAlpha(150),
                 ),
                 child: _isLoading 
                   ? SizedBox(
                       height: 20.h,
                       width: 20.h,
-                      child: const CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
+                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                     )
                   : Text(
                       'Register',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w900,
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                     ),
               ),
@@ -408,15 +399,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    );
+                    Navigator.pop(context);
                   },
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      color: Colors.amber,
+                      color: const Color(0xFFFF8C00),
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
                     ),
@@ -460,7 +448,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),
-          borderSide: const BorderSide(color: Colors.amber, width: 1.5),
+          borderSide: const BorderSide(color: Color(0xFFFF8C00), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.r),

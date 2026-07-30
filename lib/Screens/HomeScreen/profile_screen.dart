@@ -8,6 +8,7 @@ import '../../Services/saving_service.dart';
 import '../../Models/expense_model.dart';
 import '../../Models/saving_model.dart';
 import '../OnBoardingScreen/login_screen.dart';
+import 'edit_profile_screen.dart';
 import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -125,6 +126,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _userEmail,
                   style: TextStyle(fontSize: 14.sp, color: Colors.grey),
                 ),
+                SizedBox(height: 12.h),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(
+                          currentName: _userName,
+                          currentEmail: _userEmail,
+                        ),
+                      ),
+                    );
+                    if (result == true) {
+                      _loadUserData();
+                    }
+                  },
+                  icon: Icon(
+                    Icons.edit_rounded,
+                    size: 16.sp,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  label: Text(
+                    "Edit Profile",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 8.h,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
               ],
             ),
           ),
@@ -181,14 +224,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
               children: [
-                FadeInLeft(
-                  delay: const Duration(milliseconds: 200),
-                  child: _buildProfileMenu(
-                    Icons.person_outline_rounded,
-                    "Edit Profile",
-                    Colors.blue,
-                  ),
-                ),
                 FadeInLeft(
                   delay: const Duration(milliseconds: 300),
                   child: _buildProfileMenu(

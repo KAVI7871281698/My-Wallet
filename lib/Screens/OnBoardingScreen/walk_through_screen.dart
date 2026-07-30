@@ -15,9 +15,16 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
   final introKey = GlobalKey<IntroductionScreenState>();
 
   void _onIntroEnd(context) {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const LoginScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
   }
 
   Widget _buildImage(String assetPath) {
@@ -76,19 +83,22 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
           pages: [
             PageViewModel(
               title: "Manage Your Money",
-              body: "Keep track of your expenses and savings with elegant ease and perfect security.",
+              body:
+                  "Keep track of your expenses and savings with elegant ease and perfect security.",
               image: _buildImage(AppImage.walk1),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Secure Payments",
-              body: "Your transactions are shielded by state-of-the-art encryption protocols.",
+              body:
+                  "Your transactions are shielded by state-of-the-art encryption protocols.",
               image: _buildImage(AppImage.walk2),
               decoration: pageDecoration,
             ),
             PageViewModel(
               title: "Stay Organized",
-              body: "Unlock powerful insights into your spending habits to build true wealth.",
+              body:
+                  "Unlock powerful insights into your spending habits to build true wealth.",
               image: _buildImage(AppImage.walk3),
               decoration: pageDecoration,
             ),
@@ -102,7 +112,14 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
               color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20.r),
             ),
-            child: Text('Skip', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 16.sp)),
+            child: Text(
+              'Skip',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                fontSize: 16.sp,
+              ),
+            ),
           ),
           next: Container(
             padding: EdgeInsets.all(12.r),
@@ -124,7 +141,14 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
                 BoxShadow(color: Colors.amber.withOpacity(0.5), blurRadius: 10),
               ],
             ),
-            child: Text('Done', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.black, fontSize: 16.sp)),
+            child: Text(
+              'Done',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+                fontSize: 13.sp,
+              ),
+            ),
           ),
           curve: Curves.fastLinearToSlowEaseIn,
           controlsMargin: EdgeInsets.all(24.r),

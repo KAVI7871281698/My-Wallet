@@ -26,7 +26,8 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
   String _selectedFilter = "Month"; // Default filter
@@ -43,9 +44,15 @@ class _DashboardState extends State<Dashboard> {
   Stream<List<ExpenseModel>>? _expenseStream;
   String? _lastStreamUid; // Track to prevent stream reset
 
+  late AnimationController _shimmerController;
+
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
     _loadCachedData();
     _initStreams();
   }
@@ -145,6 +152,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void dispose() {
+    _shimmerController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -257,13 +265,40 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Hello, $_userName',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.titleLarge?.color,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+                AnimatedBuilder(
+                  animation: _shimmerController,
+                  builder: (context, child) {
+                    return ShaderMask(
+                      shaderCallback: (bounds) {
+                        return LinearGradient(
+                          begin: const Alignment(-1.0, 0.0),
+                          end: const Alignment(2.0, 0.0),
+                          colors: [
+                            Theme.of(context).textTheme.titleLarge?.color
+                                    ?.withValues(alpha: 0.6) ??
+                                Colors.white54,
+                            const Color(0xFFFF8C00), // Shimmering orange
+                            Theme.of(context).textTheme.titleLarge?.color
+                                    ?.withValues(alpha: 0.6) ??
+                                Colors.white54,
+                          ],
+                          stops: [
+                            _shimmerController.value - 0.2,
+                            _shimmerController.value,
+                            _shimmerController.value + 0.2,
+                          ],
+                        ).createShader(bounds);
+                      },
+                      child: Text(
+                        'Hello, $_userName',
+                        style: TextStyle(
+                          color: Colors.white, // Let shader handle color
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 Text(
                   'Welcome back to your wallet',

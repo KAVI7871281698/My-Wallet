@@ -1,0 +1,13 @@
+{
+  "name": "send-otp-functions",
+  "description": "FCM OTP Cloud Functions",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "twilio": "^6.0.2"
+  }
+}

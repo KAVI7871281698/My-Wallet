@@ -272,9 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _socialIcon(Icons.g_mobiledata),
-                SizedBox(width: 20.w),
-                _socialIcon(Icons.facebook),
+                Expanded(child: _socialIcon(Icons.g_mobiledata, "Google")),
+                SizedBox(width: 15.w),
+                Expanded(child: _socialIcon(Icons.facebook, "Facebook")),
               ],
             ),
             SizedBox(height: 40.h),
@@ -312,9 +312,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _socialIcon(IconData icon) {
+  Widget _socialIcon(IconData icon, String label) {
     return Container(
-      padding: EdgeInsets.all(12.r),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black12),
         borderRadius: BorderRadius.circular(15.r),
@@ -322,9 +322,15 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 30.sp),
-          SizedBox(width: 10.w),
-          Text("Continue with Social", style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w500)),
+          Icon(icon, size: 28.sp),
+          SizedBox(width: 5.w),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

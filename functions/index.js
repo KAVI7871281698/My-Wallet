@@ -46,7 +46,9 @@ exports.sendOtp = onCall(async (request) => {
       });
     } catch (e) {
       console.error("Twilio error:", e);
-      throw new HttpsError("internal", "Failed to send SMS.");
+      console.log(`[TESTING] SMS failed, but OTP for ${phone} is ${otp}`);
+      // Temporarily commented out so you can test the app without Twilio blocking you!
+      // throw new HttpsError("internal", "Failed to send SMS.");
     }
   } else {
     console.warn("Twilio credentials not configured. OTP generated but SMS not sent.");

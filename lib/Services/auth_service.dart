@@ -2,11 +2,13 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../Models/user_model.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(region: 'asia-south1');
 
   // Collection Reference
   CollectionReference get _usersCollection => _firestore.collection('users');
@@ -58,67 +60,61 @@ class AuthService {
     }
   }
 
-  /// Verify Phone Number
+  /// Verify Phone Number (via Twilio Cloud Function)
   Future<void> verifyPhone({
     required String phoneNumber,
     required Function(String verificationId) onCodeSent,
     required Function(FirebaseAuthException e) onVerificationFailed,
-    bool forceMock = false, // Add this for testing
+    bool forceMock = false, // Ignored in Twilio flow, kept for compatibility
   }) async {
-    if (forceMock) {
-      // Generate a random 6-digit OTP
-      String mockOtp = (Random().nextInt(900000) + 100000).toString();
-      
-      debugPrint("***************************************");
-      debugPrint("[MOCK MODE] OTP FOR $phoneNumber: $mockOtp");
-      debugPrint("***************************************");
-      
-      await Future.delayed(const Duration(seconds: 1));
-      onCodeSent("mock_id:$mockOtp");
-      return;
-    }
-
     try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await _auth.signInWithCredential(credential);
-        },
-        verificationFailed: onVerificationFailed,
-        codeSent: (String verificationId, int? resendToken) {
-          onCodeSent(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
+      final callable = _functions.httpsCallable('sendOtp');
+      await callable.call({
+        'phone': phoneNumber,
+      });
+      // Return the phone number as verificationId
+      onCodeSent(phoneNumber);
     } catch (e) {
-      debugPrint("Firebase Verify Error: $e");
-      rethrow;
+      debugPrint("Twilio Verify Error: $e");
+      onVerificationFailed(
+        FirebaseAuthException(
+          code: 'twilio-send-failed',
+          message: e.toString(),
+        )
+      );
     }
   }
 
-  /// Sign In with OTP (Supports Mock)
+  /// Sign In with OTP (via Twilio Cloud Function and Custom Auth)
   Future<UserCredential?> signInWithOtp(String verificationId, String smsCode) async {
-    if (verificationId.startsWith("mock_id:")) {
-      String expectedOtp = verificationId.split(":")[1];
-      debugPrint("[MOCK] Verifying OTP: $smsCode (Expected: $expectedOtp)");
-      
-      if (smsCode == expectedOtp) {
-        debugPrint("[MOCK] OTP Verified! Signing in anonymously for Firestore permissions...");
-        // This gives us a real Firebase UID so that Firestore Security Rules work
-        return await _auth.signInAnonymously();
-      } else {
-        debugPrint("[MOCK] Invalid OTP entered.");
+    try {
+      final callable = _functions.httpsCallable('verifyOtp');
+      final result = await callable.call({
+        'phone': verificationId,
+        'otp': smsCode,
+      });
+
+      final data = Map<String, dynamic>.from(result.data as Map);
+      if (data['success'] != true) {
         throw FirebaseAuthException(
           code: "invalid-verification-code",
           message: "The verification code is invalid.",
         );
       }
+
+      final customToken = data['customToken'];
+      if (customToken == null) {
+        throw FirebaseAuthException(
+          code: "custom-token-missing",
+          message: "Failed to receive auth token from backend.",
+        );
+      }
+
+      // Complete login with Custom Token
+      return await _auth.signInWithCustomToken(customToken);
+    } catch (e) {
+      debugPrint("Twilio Sign In Error: $e");
+      rethrow;
     }
-    
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: smsCode,
-    );
-    return await _auth.signInWithCredential(credential);
   }
 }

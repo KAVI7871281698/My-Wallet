@@ -41,48 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCLmgK-2fiYbbAomDd8MMfZqgYsM_64J9E',
-    appId: '1:401528360308:web:4904c792b327de5ee4f021',
-    messagingSenderId: '401528360308',
-    projectId: 'my-wallet-4b7b7',
-    authDomain: 'my-wallet-4b7b7.firebaseapp.com',
-    storageBucket: 'my-wallet-4b7b7.firebasestorage.app',
+    apiKey: 'AIzaSyAA9U6jW4dEeno1BTE79zoZTSbnrvsMGNM',
+    appId: '1:697109261807:web:38a6326b6b4fdb9ba41a1a',
+    messagingSenderId: '697109261807',
+    projectId: 'task1-4f117',
+    authDomain: 'task1-4f117.firebaseapp.com',
+    storageBucket: 'task1-4f117.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBOfsvgZ6umSUp-876_h0xc-QWZ2KWC_tg',
-    appId: '1:401528360308:android:af714c2ccc354abce4f021',
-    messagingSenderId: '401528360308',
-    projectId: 'my-wallet-4b7b7',
-    storageBucket: 'my-wallet-4b7b7.firebasestorage.app',
+    apiKey: 'AIzaSyDsF_mZy2fBblWDlI5SSbR2B-BN1WF8E1E',
+    appId: '1:697109261807:android:b7171b5e0a808bada41a1a',
+    messagingSenderId: '697109261807',
+    projectId: 'task1-4f117',
+    storageBucket: 'task1-4f117.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDmrThctCchJPcsXiOm7yG_D4Moo6n0cJM',
-    appId: '1:401528360308:ios:cfbf442cbc8bebcae4f021',
-    messagingSenderId: '401528360308',
-    projectId: 'my-wallet-4b7b7',
-    storageBucket: 'my-wallet-4b7b7.firebasestorage.app',
-    iosClientId: '401528360308-cm92on33764n9fq91neuq5s4r2rm1s74.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCc8EtfB5c6yj-IXJ-EQYJSDTSoSExJ3b4',
+    appId: '1:697109261807:ios:f66fc300a9676464a41a1a',
+    messagingSenderId: '697109261807',
+    projectId: 'task1-4f117',
+    storageBucket: 'task1-4f117.firebasestorage.app',
+    iosClientId: '697109261807-78annmpoj90phmfch0oo9k7ol9s151dn.apps.googleusercontent.com',
     iosBundleId: 'com.example.myWallet',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDmrThctCchJPcsXiOm7yG_D4Moo6n0cJM',
-    appId: '1:401528360308:ios:cfbf442cbc8bebcae4f021',
-    messagingSenderId: '401528360308',
-    projectId: 'my-wallet-4b7b7',
-    storageBucket: 'my-wallet-4b7b7.firebasestorage.app',
-    iosClientId: '401528360308-cm92on33764n9fq91neuq5s4r2rm1s74.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCc8EtfB5c6yj-IXJ-EQYJSDTSoSExJ3b4',
+    appId: '1:697109261807:ios:f66fc300a9676464a41a1a',
+    messagingSenderId: '697109261807',
+    projectId: 'task1-4f117',
+    storageBucket: 'task1-4f117.firebasestorage.app',
+    iosClientId: '697109261807-78annmpoj90phmfch0oo9k7ol9s151dn.apps.googleusercontent.com',
     iosBundleId: 'com.example.myWallet',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCLmgK-2fiYbbAomDd8MMfZqgYsM_64J9E',
-    appId: '1:401528360308:web:01b2d8dcad776937e4f021',
-    messagingSenderId: '401528360308',
-    projectId: 'my-wallet-4b7b7',
-    authDomain: 'my-wallet-4b7b7.firebaseapp.com',
-    storageBucket: 'my-wallet-4b7b7.firebasestorage.app',
+    apiKey: 'AIzaSyDoiYgf-fzXruVO-oaU0a_aiuRIeuSXuWQ',
+    appId: '1:697109261807:web:2d3bf20814f11a96a41a1a',
+    messagingSenderId: '697109261807',
+    projectId: 'task1-4f117',
+    authDomain: 'task1-4f117.firebaseapp.com',
+    storageBucket: 'task1-4f117.firebasestorage.app',
   );
 }

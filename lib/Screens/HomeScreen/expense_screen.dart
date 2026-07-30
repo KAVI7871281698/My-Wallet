@@ -6,7 +6,7 @@ import '../../Services/expense_service.dart';
 import '../../Models/expense_model.dart';
 import '../../Core/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import '../../Widgets/swip_button.dart';
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
 
@@ -37,7 +37,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1E3C72),
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -50,15 +50,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 width: double.infinity,
                 padding: EdgeInsets.all(24.r),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
+                  gradient: LinearGradient(
+                    colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(30.r),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF1E3C72).withAlpha(76),
+                      color: Theme.of(context).primaryColor.withAlpha(76),
                       blurRadius: 15,
                       offset: const Offset(0, 10),
                     ),
@@ -76,7 +76,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         fontSize: 36.sp,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2,
@@ -103,7 +103,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ),
@@ -166,8 +166,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                 ? FontWeight.bold
                                 : FontWeight.w500,
                             color: isSelected
-                                ? const Color(0xFF1E3C72)
-                                : Colors.black54,
+                                ? Theme.of(context).primaryColor
+                                : Theme.of(context).textTheme.bodyMedium?.color,
                           ),
                         ),
                       ],
@@ -185,8 +185,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               child: SizedBox(
                 width: double.infinity,
                 height: 60.h,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : () async {
+                child: SwipeButton(
+                  text: "Save Expense",
+                  onSwipe: () async {
                     if (_amountController.text.isEmpty) {
                       KSnackBar.showError(context, message: "Please enter an amount!");
                       return;
@@ -198,7 +199,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       return;
                     }
 
-                    setState(() => _isLoading = true);
                     try {
                       final User? user = FirebaseAuth.instance.currentUser;
                       if (user != null) {
@@ -223,28 +223,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       if (mounted) {
                         KSnackBar.showError(context, message: "Failed to save expense: $e");
                       }
-                    } finally {
-                      if (mounted) setState(() => _isLoading = false);
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E3C72),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    elevation: 10,
-                    shadowColor: const Color(0xFF1E3C72).withAlpha(100),
-                  ),
-                  child: _isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        "Save Expense",
-                        style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
                 ),
               ),
             ),

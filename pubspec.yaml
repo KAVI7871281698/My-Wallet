@@ -55,6 +55,7 @@ dependencies:
   shared_preferences: ^2.5.4
   month_picker_dialog: ^6.7.2
   cloud_functions: ^6.3.5
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:

@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveLayout(
         mobile: _buildSplashContent(),
         tablet: _buildSplashContent(),
@@ -81,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Text(
             'MY WALLET',
             style: TextStyle(
-              color: const Color(0xFF1A1A1A),
+              color: Theme.of(context).textTheme.titleLarge?.color,
               fontSize: 24.sp,
               fontWeight: FontWeight.bold,
               letterSpacing: 4.w,
@@ -91,15 +91,15 @@ class _SplashScreenState extends State<SplashScreen> {
           Text(
             'Secure & Simple',
             style: TextStyle(
-              color: Colors.black45,
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
               fontSize: 14.sp,
               fontWeight: FontWeight.w300,
               letterSpacing: 2.w,
             ),
           ),
           SizedBox(height: 80.h),
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.black12),
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary.withOpacity(0.2)),
             strokeWidth: 2,
           ),
         ],

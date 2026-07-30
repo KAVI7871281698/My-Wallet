@@ -123,16 +123,16 @@ class _OtpScreenState extends State<OtpScreen> {
       height: 60.h,
       textStyle: TextStyle(
         fontSize: 22.sp,
-        color: const Color(0xFF1A1A1A),
+        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
         fontWeight: FontWeight.bold,
       ),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Theme.of(context).primaryColor.withAlpha(10),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.transparent),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(12),
+            color: Theme.of(context).primaryColor.withAlpha(20),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -142,8 +142,8 @@ class _OtpScreenState extends State<OtpScreen> {
 
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 1.5),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black, width: 1.5),
       ),
     );
 
@@ -152,7 +152,7 @@ class _OtpScreenState extends State<OtpScreen> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30.r),
           topRight: Radius.circular(30.r),
@@ -179,10 +179,10 @@ class _OtpScreenState extends State<OtpScreen> {
             Container(
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
-                color: Colors.black.withAlpha(12),
+                color: Theme.of(context).primaryColor.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.security_rounded, size: 40.r, color: Colors.black),
+              child: Icon(Icons.security_rounded, size: 40.r, color: Theme.of(context).primaryColor),
             ),
             SizedBox(height: 20.h),
             Text(
@@ -190,7 +190,7 @@ class _OtpScreenState extends State<OtpScreen> {
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
-                color: const Color(0xFF1A1A1A),
+                color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black,
               ),
             ),
             SizedBox(height: 10.h),
@@ -207,7 +207,7 @@ class _OtpScreenState extends State<OtpScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: Colors.grey.shade600,
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                 height: 1.5,
               ),
             ),
@@ -230,7 +230,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     margin: EdgeInsets.only(bottom: 9.h),
                     width: 22.w,
                     height: 1.h,
-                    color: Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   ),
                 ],
               ),
@@ -253,7 +253,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: _canResend ? Colors.black : Colors.grey,
+                      color: _canResend ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5),
                     ),
                   ),
                 ),
@@ -269,8 +269,8 @@ class _OtpScreenState extends State<OtpScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : () => _verifyOtp(_pinController.text),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
                   ),

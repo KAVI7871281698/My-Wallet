@@ -60,6 +60,20 @@ class AuthService {
     }
   }
 
+  /// Check if User Exists by Phone Number
+  Future<bool> checkUserExists(String phoneNumber) async {
+    try {
+      final querySnapshot = await _usersCollection
+          .where('mobile', isEqualTo: phoneNumber)
+          .limit(1)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      debugPrint("Error checking if user exists: $e");
+      return false;
+    }
+  }
+
   /// Verify Phone Number (via Twilio Cloud Function)
   Future<void> verifyPhone({
     required String phoneNumber,

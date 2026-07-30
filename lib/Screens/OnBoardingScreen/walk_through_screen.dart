@@ -38,14 +38,14 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
       titleTextStyle: TextStyle(
         fontSize: 28.sp,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF1A1A1A),
+        color: Theme.of(context).textTheme.titleLarge?.color,
       ),
       bodyTextStyle: TextStyle(
         fontSize: 19.sp,
-        color: Colors.black54,
+        color: Theme.of(context).textTheme.bodyMedium?.color,
       ),
       bodyPadding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 16.h),
-      pageColor: Colors.white,
+      pageColor: Theme.of(context).colorScheme.surface,
       imagePadding: EdgeInsets.only(top: 40.h),
       imageAlignment: Alignment.center,
       bodyAlignment: Alignment.center,
@@ -53,7 +53,7 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
 
     return IntroductionScreen(
       key: introKey,
-      globalBackgroundColor: Colors.white,
+      globalBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
       allowImplicitScrolling: true,
       autoScrollDuration: 3000,
       infiniteAutoScroll: false,
@@ -86,11 +86,12 @@ class _WalkThroughScreenState extends State<WalkThroughScreen> {
       curve: Curves.fastLinearToSlowEaseIn,
       controlsMargin: const EdgeInsets.all(16),
       controlsPadding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-      dotsDecorator: const DotsDecorator(
-        size: Size(10.0, 10.0),
-        color: Color(0xFFBDBDBD),
-        activeSize: Size(22.0, 10.0),
-        activeShape: RoundedRectangleBorder(
+      dotsDecorator: DotsDecorator(
+        size: const Size(10.0, 10.0),
+        color: Theme.of(context).primaryColor.withAlpha(50),
+        activeColor: Theme.of(context).primaryColor,
+        activeSize: const Size(22.0, 10.0),
+        activeShape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(25.0)),
         ),
       ),

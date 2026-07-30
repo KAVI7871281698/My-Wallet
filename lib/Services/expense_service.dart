@@ -23,12 +23,15 @@ class ExpenseService {
     }
     return _expensesCollection
         .where('userId', isEqualTo: userId)
-        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
+      final docs = snapshot.docs.map((doc) {
         return ExpenseModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
+      
+      // Sort on client-side to fix "Index Required" error instantly
+      docs.sort((a, b) => b.date.compareTo(a.date));
+      return docs;
     });
   }
 }

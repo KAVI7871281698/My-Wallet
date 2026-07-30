@@ -22,7 +22,7 @@ class SliderMenu extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [const Color(0xFF1E3C72), const Color(0xFF2A5298)],
+          colors: [Theme.of(context).primaryColor, Theme.of(context).primaryColor.withAlpha(200)],
         ),
       ),
       padding: EdgeInsets.only(top: 80.h, left: 24.w, right: 24.w),
@@ -47,7 +47,7 @@ class SliderMenu extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: 30.r,
-                    backgroundColor: Colors.white24,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     child: Icon(Icons.person, size: 35.r, color: Colors.white),
                   ),
                 ),

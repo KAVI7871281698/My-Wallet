@@ -7,11 +7,11 @@ import '../../Widgets/snack_bar.dart';
 import 'login_screen.dart';
 import '../HomeScreen/dashboard.dart';
 import '../../Services/auth_service.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
-import 'otp_screen.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   String _phoneNumber = "";
   bool _isLoading = false;
   final AuthService _authService = AuthService();
@@ -34,33 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String deviceId = "Unknown";
 
     try {
-      // 1. Get Location
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
-        try {
-          // Try to get last known position first (it's instant)
-          Position? position = await Geolocator.getLastKnownPosition();
-          
-          if (position == null) {
-            // If not available, get current position with a strict timeout
-            position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.low,
-              timeLimit: const Duration(seconds: 3),
-            );
-          }
-
-          lat = position.latitude.toString();
-          lng = position.longitude.toString();
-        } catch (e) {
-          debugPrint("Location fetch failed or timed out: $e");
-        }
-      }
-
-      // 2. Get Device ID
+      // 1. Get Device ID
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
@@ -77,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await prefs.setString('deviceId', deviceId);
 
     } catch (e) {
-      debugPrint("Error fetching device/location: $e");
+      debugPrint("Error fetching device info: $e");
     }
     return {"lat": lat, "lng": lng, "deviceId": deviceId};
   }
@@ -86,6 +62,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -218,6 +196,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 20.h),
+                    
+                    // Password Field
+                    _buildTextField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      hint: 'Enter your password',
+                      icon: Icons.lock_outline,
+                      isPassword: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 20.h),
+                    
+                    // Confirm Password Field
+                    _buildTextField(
+                      controller: _confirmPasswordController,
+                      label: 'Confirm Password',
+                      hint: 'Re-enter your password',
+                      icon: Icons.lock_outline,
+                      isPassword: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -247,108 +263,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return;
                       }
 
-                      // 1. Fetch device and location details
+                      // 1. Fetch device and location details (optional usage now)
                       final details = await _getDeviceAndLocation();
                       
-                      // 2. Start Phone Verification
-                      await _authService.verifyPhone(
-                        phoneNumber: _phoneNumber, 
-                        onCodeSent: (verificationId) async {
-                          debugPrint("OTP Code Sent! Verification ID: $verificationId");
-                          setState(() => _isLoading = false);
-                          
-                          // 3. Show OTP Popup
-                          final code = await OtpScreen.show(
-                            context, 
-                            phoneNumber: _phoneNumber, 
-                            verificationId: verificationId,
-                          );
+                      // 2. Direct Sign Up with Password
+                      debugPrint("======= SIGNUP DATA =======");
+                      debugPrint("Name: ${_nameController.text.trim()}");
+                      debugPrint("Email: ${_emailController.text.trim()}");
+                      debugPrint("Mobile: $_phoneNumber");
+                      debugPrint("Latitude: ${details['lat']}");
+                      debugPrint("Longitude: ${details['lng']}");
+                      debugPrint("Device ID: ${details['deviceId']}");
+                      debugPrint("===========================");
 
-                          if (code != null && context.mounted) {
-                            // 4. OTP Verified! Now save to Firestore
-                            setState(() => _isLoading = true);
-                            try {
-                              debugPrint("======= SIGNUP DATA =======");
-                              debugPrint("Name: ${_nameController.text.trim()}");
-                              debugPrint("Email: ${_emailController.text.trim()}");
-                              debugPrint("Mobile: $_phoneNumber");
-                              debugPrint("Latitude: ${details['lat']}");
-                              debugPrint("Longitude: ${details['lng']}");
-                              debugPrint("Device ID: ${details['deviceId']}");
-                              debugPrint("===========================");
-
-                              await _authService.signUp(
-                                name: _nameController.text.trim(),
-                                email: _emailController.text.trim(),
-                                mobile: _phoneNumber,
-                              );
-
-                              // 4. Update local cache for instant Dashboard greeting
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('user_name', _nameController.text.trim());
-                              await prefs.setString('user_email', _emailController.text.trim());
-
-                              if (context.mounted) {
-                                KSnackBar.showSuccess(context, message: "Account created successfully!");
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const Dashboard()),
-                                );
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                setState(() => _isLoading = false);
-                                KSnackBar.showError(context, message: "Registration failed: $e");
-                              }
-                            }
-                          }
-                        }, 
-                        onVerificationFailed: (e) {
-                          if (e.code == "billing-not-enabled" || 
-                              e.code == "too-many-requests" ||
-                              e.message?.contains("BILLING_NOT_ENABLED") == true ||
-                              e.message?.contains("too-many-requests") == true) {
-                            debugPrint("[DEV MODE] Firebase issue (${e.code}). Switching to Manual Testing...");
-                            _authService.verifyPhone(
-                              phoneNumber: _phoneNumber, 
-                              onCodeSent: (mockId) async {
-                                setState(() => _isLoading = false);
-                                final otp = await OtpScreen.show(context, phoneNumber: _phoneNumber, verificationId: mockId);
-                                if (otp != null && context.mounted) {
-                                  // SAVE TO FIRESTORE EVEN IN MOCK MODE
-                                  setState(() => _isLoading = true);
-                                  try {
-                                    await _authService.signUp(
-                                      name: _nameController.text.trim(),
-                                      email: _emailController.text.trim(),
-                                      mobile: _phoneNumber,
-                                    );
-                                    
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    await prefs.setString('user_name', _nameController.text.trim());
-                                    await prefs.setString('user_email', _emailController.text.trim());
-
-                                    if (context.mounted) {
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      setState(() => _isLoading = false);
-                                      KSnackBar.showError(context, message: "Registration failed: $e");
-                                    }
-                                  }
-                                }
-                              }, 
-                              onVerificationFailed: (e) {},
-                              forceMock: true,
-                            );
-                            return;
-                          }
-                          setState(() => _isLoading = false);
-                          debugPrint("Phone Verification Failed: $e");
-                          KSnackBar.showError(context, message: "Verification failed: ${e.message}");
-                        },
+                      await _authService.signUpWithPassword(
+                        name: _nameController.text.trim(),
+                        email: _emailController.text.trim(),
+                        mobile: _phoneNumber,
+                        password: _passwordController.text,
                       );
+
+                      // 3. Update local cache for instant Dashboard greeting
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.setString('user_name', _nameController.text.trim());
+                      await prefs.setString('user_email', _emailController.text.trim());
+
+                      if (context.mounted) {
+                        KSnackBar.showSuccess(context, message: "Account created successfully!");
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Dashboard()),
+                        );
+                      }
                     } catch (e) {
                       if (!mounted) return;
                       debugPrint("Registration Error: $e");

@@ -13,36 +13,66 @@ class AuthService {
   // Collection Reference
   CollectionReference get _usersCollection => _firestore.collection('users');
 
-  /// Save User data to Firestore
-  Future<void> signUp({
+  // Helper to generate a dummy email from mobile number
+  String _generateEmailFromMobile(String mobile) {
+    // Remove non-digit characters if any
+    String cleanMobile = mobile.replaceAll(RegExp(r'\D'), '');
+    return '$cleanMobile@mywallet.app';
+  }
+
+  /// Sign Up with Mobile and Password
+  Future<UserCredential?> signUpWithPassword({
     required String name,
     required String email,
     required String mobile,
+    required String password,
   }) async {
     try {
-      User? currentUser = _auth.currentUser;
+      String synthesizedEmail = _generateEmailFromMobile(mobile);
       
-      if (currentUser == null) {
-        debugPrint("No authenticated user found. Signing in anonymously...");
-        UserCredential creds = await _auth.signInAnonymously();
-        currentUser = creds.user;
-      }
-      
-      String uid = currentUser!.uid;
-
-      UserModel userModel = UserModel(
-        uid: uid,
-        name: name,
-        email: email,
-        mobile: mobile,
-        createdAt: DateTime.now(),
+      UserCredential creds = await _auth.createUserWithEmailAndPassword(
+        email: synthesizedEmail,
+        password: password,
       );
+      
+      User? currentUser = creds.user;
+      
+      if (currentUser != null) {
+        String uid = currentUser.uid;
 
-      // Save user data to Firestore
-      await _usersCollection.doc(uid).set(userModel.toMap());
-      debugPrint("User data saved to Firestore for UID: $uid");
+        UserModel userModel = UserModel(
+          uid: uid,
+          name: name,
+          email: email, // Store their real email in Firestore
+          mobile: mobile,
+          createdAt: DateTime.now(),
+        );
+
+        // Save user data to Firestore
+        await _usersCollection.doc(uid).set(userModel.toMap());
+        debugPrint("User data saved to Firestore for UID: $uid");
+      }
+      return creds;
     } catch (e) {
-      debugPrint("Error in signUp (saving data): $e");
+      debugPrint("Error in signUpWithPassword: $e");
+      rethrow;
+    }
+  }
+
+  /// Login with Mobile and Password
+  Future<UserCredential?> loginWithPassword({
+    required String mobile,
+    required String password,
+  }) async {
+    try {
+      String synthesizedEmail = _generateEmailFromMobile(mobile);
+      
+      return await _auth.signInWithEmailAndPassword(
+        email: synthesizedEmail,
+        password: password,
+      );
+    } catch (e) {
+      debugPrint("Error in loginWithPassword: $e");
       rethrow;
     }
   }
@@ -85,64 +115,6 @@ class AuthService {
     } catch (e) {
       debugPrint("Error checking if user exists: $e");
       return false;
-    }
-  }
-
-  /// Verify Phone Number (via Twilio Cloud Function)
-  Future<void> verifyPhone({
-    required String phoneNumber,
-    required Function(String verificationId) onCodeSent,
-    required Function(FirebaseAuthException e) onVerificationFailed,
-    bool forceMock = false, // Ignored in Twilio flow, kept for compatibility
-  }) async {
-    try {
-      final callable = _functions.httpsCallable('sendOtp');
-      await callable.call({
-        'phone': phoneNumber,
-      });
-      // Return the phone number as verificationId
-      onCodeSent(phoneNumber);
-    } catch (e) {
-      debugPrint("Twilio Verify Error: $e");
-      onVerificationFailed(
-        FirebaseAuthException(
-          code: 'twilio-send-failed',
-          message: e.toString(),
-        )
-      );
-    }
-  }
-
-  /// Sign In with OTP (via Twilio Cloud Function and Custom Auth)
-  Future<UserCredential?> signInWithOtp(String verificationId, String smsCode) async {
-    try {
-      final callable = _functions.httpsCallable('verifyOtp');
-      final result = await callable.call({
-        'phone': verificationId,
-        'otp': smsCode,
-      });
-
-      final data = Map<String, dynamic>.from(result.data as Map);
-      if (data['success'] != true) {
-        throw FirebaseAuthException(
-          code: "invalid-verification-code",
-          message: "The verification code is invalid.",
-        );
-      }
-
-      final customToken = data['customToken'];
-      if (customToken == null) {
-        throw FirebaseAuthException(
-          code: "custom-token-missing",
-          message: "Failed to receive auth token from backend.",
-        );
-      }
-
-      // Complete login with Custom Token
-      return await _auth.signInWithCustomToken(customToken);
-    } catch (e) {
-      debugPrint("Twilio Sign In Error: $e");
-      rethrow;
     }
   }
 }

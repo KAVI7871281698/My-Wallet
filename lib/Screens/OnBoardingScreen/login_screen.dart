@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 import '../../Core/app_image.dart';
@@ -12,7 +12,7 @@ import '../../Models/user_model.dart';
 import '../../Widgets/responsive_widgets.dart';
 import '../../Widgets/snack_bar.dart';
 import '../HomeScreen/dashboard.dart';
-import 'otp_screen.dart';
+
 import 'regiester_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,26 +25,19 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   String _phoneNumber = "";
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   final AuthService _authService = AuthService();
 
   Future<void> _saveDeviceDetails() async {
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission != LocationPermission.deniedForever) {
-        Position position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-          ),
-        );
-        debugPrint("Location: ${position.latitude}, ${position.longitude}");
-      }
-
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       String deviceModel = "";
       String deviceVersion = "";
@@ -116,7 +109,9 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                   Form(
                     key: _formKey,
-                    child: IntlPhoneField(
+                    child: Column(
+                      children: [
+                        IntlPhoneField(
                       style: TextStyle(color: Colors.white, fontSize: 16.sp),
                       dropdownTextStyle: TextStyle(color: Colors.white, fontSize: 16.sp),
                       dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.white70),
@@ -139,7 +134,50 @@ class _LoginScreenState extends State<LoginScreen> {
                         _phoneNumber = phone.completeNumber;
                       },
                     ),
-                  ),
+                    SizedBox(height: 20.h),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
+                        prefixIcon: Icon(Icons.lock_outline, color: Colors.white70, size: 22.sp),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Color(0xFFFF8C00), width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: BorderSide(color: Colors.red.shade300),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                        ),
+                        filled: true,
+                        fillColor: Colors.black.withOpacity(0.2),
+                        labelStyle: TextStyle(color: Colors.white70, fontSize: 14.sp),
+                        hintStyle: TextStyle(color: Colors.white38, fontSize: 14.sp),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
                   SizedBox(height: 20.h),
                   SizedBox(
                     width: double.infinity,
@@ -148,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _isLoading
                     ? null
                     : () async {
+                        if (!_formKey.currentState!.validate()) return;
                         if (_phoneNumber.isEmpty) {
                           KSnackBar.showError(
                             context,
@@ -161,153 +200,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         await _saveDeviceDetails();
 
                         try {
-                          // We will check if the user is registered AFTER they successfully authenticate with OTP.
-                          // This avoids Firestore Permission Denied errors because unauthenticated users cannot read the DB.
-
-                          await _authService.verifyPhone(
-                            phoneNumber: _phoneNumber,
-                            onCodeSent: (verificationId) async {
-                              debugPrint(
-                                "OTP Code Sent! Verification ID: $verificationId",
-                              );
-                              setState(() => _isLoading = false);
-
-                              final otp = await OtpScreen.show(
-                                context,
-                                phoneNumber: _phoneNumber,
-                                verificationId: verificationId,
-                              );
-
-                              if (otp != null && context.mounted) {
-                                setState(() => _isLoading = true);
-                                try {
-                                  // Fetch and cache user data for immediate show in Dashboard
-                                  User? user = FirebaseAuth.instance.currentUser;
-                                  if (user != null) {
-                                    // NOW we check if they are registered!
-                                    bool userExists = await _authService.checkUserExists(_phoneNumber);
-                                    
-                                    if (!userExists) {
-                                      // If they authenticated but aren't registered in the DB
-                                      await FirebaseAuth.instance.signOut();
-                                      if (context.mounted) {
-                                        setState(() => _isLoading = false);
-                                        KSnackBar.showError(
-                                          context,
-                                          message: "Number not registered. Please sign up first.",
-                                        );
-                                      }
-                                      return;
-                                    }
-
-                                    UserModel? data = await _authService.getUserData(user.uid);
-                                    if (data != null) {
-                                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                                      await prefs.setString('user_name', data.name);
-                                      await prefs.setString('user_email', data.email);
-                                    }
-                                  }
-
-                                  if (context.mounted) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const Dashboard(),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    setState(() => _isLoading = false);
-                                    KSnackBar.showError(context, message: "Login failed: $e");
-                                  }
-                                }
-                              }
-                            },
-                            onVerificationFailed: (e) {
-                              if (e.code == "billing-not-enabled" ||
-                                  e.code == "too-many-requests" ||
-                                  e.message?.contains("BILLING_NOT_ENABLED") ==
-                                      true ||
-                                  e.message?.contains("too-many-requests") ==
-                                      true) {
-                                debugPrint(
-                                  "[DEV MODE] Firebase issue (${e.code}). Switching to Manual Testing...",
-                                );
-                                _authService.verifyPhone(
-                                  phoneNumber: _phoneNumber,
-                                  onCodeSent: (mockId) async {
-                                    setState(() => _isLoading = false);
-                                    final otp = await OtpScreen.show(
-                                      context,
-                                      phoneNumber: _phoneNumber,
-                                      verificationId: mockId,
-                                    );
-                                    if (otp != null && context.mounted) {
-                                      setState(() => _isLoading = true);
-                                      try {
-                                        // Fetch and cache user data for immediate show in Dashboard
-                                        User? user =
-                                            FirebaseAuth.instance.currentUser;
-                                        if (user != null) {
-                                          UserModel? data = await _authService
-                                              .getUserData(user.uid);
-                                          if (data != null) {
-                                            SharedPreferences prefs =
-                                                await SharedPreferences.getInstance();
-                                            await prefs.setString(
-                                              'user_name',
-                                              data.name,
-                                            );
-                                            await prefs.setString(
-                                              'user_email',
-                                              data.email,
-                                            );
-                                          }
-                                        }
-
-                                        if (context.mounted) {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const Dashboard(),
-                                            ),
-                                          );
-                                        }
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          setState(() => _isLoading = false);
-                                          KSnackBar.showError(context, message: "Login failed: $e");
-                                        }
-                                      }
-                                    }
-                                  },
-                                  onVerificationFailed: (e) {
-                                    setState(() => _isLoading = false);
-                                    debugPrint(
-                                      "Manual Verification Failed: $e",
-                                    );
-                                  },
-                                  forceMock: true,
-                                );
-                                return;
-                              }
-                              setState(() => _isLoading = false);
-                              debugPrint("Phone Verification Failed: $e");
-                              KSnackBar.showError(
-                                context,
-                                message: "Verification failed: ${e.message}",
-                              );
-                            },
+                          await _authService.loginWithPassword(
+                            mobile: _phoneNumber,
+                            password: _passwordController.text,
                           );
+
+                          // Fetch and cache user data for immediate show in Dashboard
+                          User? user = FirebaseAuth.instance.currentUser;
+                          if (user != null) {
+                            UserModel? data = await _authService.getUserData(user.uid);
+                            if (data != null) {
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('user_name', data.name);
+                              await prefs.setString('user_email', data.email);
+                            }
+                          }
+
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Dashboard(),
+                              ),
+                            );
+                          }
                         } catch (e) {
-                          setState(() => _isLoading = false);
-                          debugPrint("Error: $e");
-                          KSnackBar.showError(
-                            context,
-                            message: "An error occurred: $e",
-                          );
+                          if (context.mounted) {
+                            KSnackBar.showError(context, message: "Login failed: $e");
+                          }
+                        } finally {
+                          if (context.mounted) {
+                            setState(() => _isLoading = false);
+                          }
                         }
                       },
                 style: ElevatedButton.styleFrom(
@@ -321,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.black)
                     : Text(
-                        "Send OTP",
+                        "Login",
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w900,

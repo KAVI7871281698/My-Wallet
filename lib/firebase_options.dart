@@ -41,8 +41,8 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAA9U6jW4dEeno1BTE79zoZTSbnrvsMGNM',
-    appId: '1:697109261807:web:38a6326b6b4fdb9ba41a1a',
+    apiKey: 'AIzaSyDoiYgf-fzXruVO-oaU0a_aiuRIeuSXuWQ',
+    appId: '1:697109261807:web:2d13fd00543a16e1a41a1a',
     messagingSenderId: '697109261807',
     projectId: 'task1-4f117',
     authDomain: 'task1-4f117.firebaseapp.com',
@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDsF_mZy2fBblWDlI5SSbR2B-BN1WF8E1E',
-    appId: '1:697109261807:android:b7171b5e0a808bada41a1a',
+    appId: '1:697109261807:android:8dda9be4c14da0f8a41a1a',
     messagingSenderId: '697109261807',
     projectId: 'task1-4f117',
     storageBucket: 'task1-4f117.firebasestorage.app',
@@ -77,7 +77,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDoiYgf-fzXruVO-oaU0a_aiuRIeuSXuWQ',
-    appId: '1:697109261807:web:2d3bf20814f11a96a41a1a',
+    appId: '1:697109261807:web:e85cd618308ad819a41a1a',
     messagingSenderId: '697109261807',
     projectId: 'task1-4f117',
     authDomain: 'task1-4f117.firebaseapp.com',

@@ -587,19 +587,18 @@ class _DashboardState extends State<Dashboard>
             ],
           ),
 
-          SizedBox(height: 25.h),
+          // SizedBox(height: 25.h),
 
-          // 3. Quick Action Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildActionBtn(Icons.arrow_upward_rounded, "Send"),
-              _buildActionBtn(Icons.arrow_downward_rounded, "Receive"),
-              _buildActionBtn(Icons.account_balance_wallet_rounded, "Top Up"),
-              _buildActionBtn(Icons.more_horiz_rounded, "More"),
-            ],
-          ),
-
+          // // 3. Quick Action Row
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //   children: [
+          //     _buildActionBtn(Icons.arrow_upward_rounded, "Send"),
+          //     _buildActionBtn(Icons.arrow_downward_rounded, "Receive"),
+          //     _buildActionBtn(Icons.account_balance_wallet_rounded, "Top Up"),
+          //     _buildActionBtn(Icons.more_horiz_rounded, "More"),
+          //   ],
+          // ),
           SizedBox(height: 35.h),
 
           Row(
@@ -696,30 +695,30 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  Widget _buildActionBtn(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          width: 50.w,
-          height: 50.w,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: Theme.of(context).primaryColor, size: 24.sp),
-        ),
-        SizedBox(height: 8.h),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildActionBtn(IconData icon, String label) {
+  //   return Column(
+  //     children: [
+  //       Container(
+  //         width: 50.w,
+  //         height: 50.w,
+  //         decoration: BoxDecoration(
+  //           color: Theme.of(context).primaryColor.withOpacity(0.1),
+  //           shape: BoxShape.circle,
+  //         ),
+  //         child: Icon(icon, color: Theme.of(context).primaryColor, size: 24.sp),
+  //       ),
+  //       SizedBox(height: 8.h),
+  //       Text(
+  //         label,
+  //         style: TextStyle(
+  //           fontSize: 12.sp,
+  //           color: Theme.of(context).textTheme.bodyMedium?.color,
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   PopupMenuItem<String> _buildFilterItem(String title, IconData icon) {
     return PopupMenuItem<String>(

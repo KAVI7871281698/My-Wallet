@@ -355,7 +355,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 15.h),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
@@ -365,8 +364,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      child: ListTile(
-        leading: Container(
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20.r),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          leading: Container(
           padding: EdgeInsets.all(8.r),
           decoration: BoxDecoration(
             color: color.withAlpha(25),
@@ -390,6 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: Colors.grey,
         ),
         onTap: onTap ?? () {},
+      ),
       ),
     );
   }

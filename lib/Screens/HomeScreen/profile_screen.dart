@@ -10,6 +10,11 @@ import '../../Models/saving_model.dart';
 import '../OnBoardingScreen/login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_and_conditions_screen.dart';
+import 'terms_and_conditions_screen.dart';
+import 'terms_and_conditions_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   String _userName = "User";
   String _userEmail = "user@mail.com";
+  String _appVersion = "";
 
   @override
   void initState() {
@@ -34,12 +40,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       _userName = prefs.getString('user_name') ?? "User";
       _userEmail =
           prefs.getString('user_email') ??
           _auth.currentUser?.email ??
           "user@mail.com";
+      _appVersion = packageInfo.version;
     });
   }
 
@@ -243,9 +251,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 FadeInLeft(
                   delay: const Duration(milliseconds: 500),
                   child: _buildProfileMenu(
-                    Icons.help_outline_rounded,
-                    "Help Center",
-                    Colors.purple,
+                    Icons.privacy_tip_outlined,
+                    "Privacy Policy",
+                    Colors.teal,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                FadeInLeft(
+                  delay: const Duration(milliseconds: 550),
+                  child: _buildProfileMenu(
+                    Icons.description_outlined,
+                    "Terms & Conditions",
+                    Colors.indigo,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TermsAndConditionsScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 FadeInLeft(
@@ -316,6 +348,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          SizedBox(height: 20.h),
+          Text(
+            _appVersion.isEmpty ? "" : "Version $_appVersion",
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 100.h), // Spacing for bottom bar

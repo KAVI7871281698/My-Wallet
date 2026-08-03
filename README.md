@@ -1,103 +1,97 @@
-# 💳 My Wallet - Modern Expense & Savings Tracker
+<div align="center">
+  <img src="assets/images/app_logo.png" alt="My Wallet Logo" width="150"/>
+  
+  # 💳 My Wallet
+  **A Modern, Trendy, and Secure Personal Expense Tracker**
 
-![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white)
-![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
-![Dart](https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white)
-
-**My Wallet** is a premium, feature-rich personal finance management application built with Flutter and Firebase. It empowers users to track their daily expenses, manage savings, and visualize their financial health through a stunning, modern interface.
+  <p>
+    <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white" alt="Flutter" />
+    <img src="https://img.shields.io/badge/Firebase-%23039BE5.svg?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase" />
+    <img src="https://img.shields.io/badge/Dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white" alt="Dart" />
+  </p>
+</div>
 
 ---
 
-## 📱 App Screenshots
+**My Wallet** is a premium, beautifully crafted personal finance application designed to help you manage your daily expenses and track your savings effortlessly. Say goodbye to spreadsheets and hello to a seamless financial experience.
+
+---
+
+## 📱 App Experience
+
+Experience a clean, glassmorphic, and highly interactive user interface.
 
 <p align="center">
-  <img src="assets/screenshots/login.png" width="30%" alt="Login Screen" />
-  <img src="assets/screenshots/dashboard.png" width="30%" alt="Dashboard Screen" />
-  <img src="assets/screenshots/savings.png" width="30%" alt="Savings Screen" />
+  <img src="assets/images/walk1.png" width="30%" alt="Onboarding Screen 1" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin: 0 10px;" />
+  <img src="assets/images/walk2.png" width="30%" alt="Onboarding Screen 2" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin: 0 10px;" />
+  <img src="assets/images/walk3.png" width="30%" alt="Onboarding Screen 3" style="border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin: 0 10px;" />
+</p>
+<p align="center">
+  <em>(Beautiful onboarding screens showcasing the app's modern design language)</em>
 </p>
 
 ---
 
-## ✨ Key Features
+## ✨ Why Choose My Wallet?
 
-### 🔐 Advanced Authentication
-*   **Phone & OTP Login**: Secure authentication using Firebase Phone Auth.
-*   **User Registration**: Simple onboarding with profile setup.
-*   **Mock Mode**: Built-in fallback for instant demo access when network services are restricted.
-*   **Auto-Login**: Seamlessly skip intro screens once authenticated.
+### 🎨 Stunning UI / UX
+- **Glassmorphism Design:** Modern aesthetic with blurred backgrounds and sleek cards.
+- **Micro-Animations:** Fluid transitions and engaging animations that make budgeting fun.
+- **Dark Mode Optimized:** A gorgeous, eye-friendly dark theme with vibrant accent colors.
 
-### 📊 Interactive Dashboard
-*   **Smart Overviews**: Real-time display of total expenses and income categories.
-*   **Data Caching**: Instant access to your data even offline using local hydration logic.
-*   **Dynamic Filtering**: Filter financial records by Month or Year with a single click.
+### 🔐 Secure & Private
+- **Phone Authentication:** Securely login using your mobile number via Firebase Auth.
+- **100% Private Data:** We do not connect to banks. You manually enter your data, giving you total control.
 
-### 💰 Savings & Goals
-*   **Simple Deposits**: Effortlessly track your growth by adding savings without complex setups.
-*   **Intelligent History**: View your progress over time with built-in month/year pickers.
-*   **Motivation**: Real-time status updates and encouraging micro-animations.
-
-### 👤 User Profile & Sidebar
-*   **Financial Insights**: At-a-glance stats showing total wallets, expenses, and savings.
-*   **Modern Side Menu**: A high-end "Shrink & Slide" navigation experience.
-*   **Secure Logout**: One-tap session termination.
+### 📊 Powerful Financial Tracking
+- **Interactive Dashboard:** Instantly view your total income, expenses, and savings at a glance.
+- **Smart Filtering:** Effortlessly filter your transaction history by month or year.
+- **Quick Logging:** Add an expense or saving record in just a few taps.
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 Built With Modern Tech
 
-- **Framework**: [Flutter](https://flutter.dev/)
-- **Backend**: [Firebase](https://firebase.google.com/) (Auth, Firestore)
-- **Local Storage**: [SharedPreferences](https://pub.dev/packages/shared_preferences)
-- **UI & Animations**: 
-    - `flutter_screenutil` (Responsiveness)
-    - `animate_do` (Micro-animations)
-    - `shrink_sidemenu` (Navigation)
-    - `month_picker_dialog` (Date selection)
-- **Architecture**: Service-based Clean Architecture (AuthService, ExpenseService, SavingService).
+- **Framework**: [Flutter](https://flutter.dev/) (Cross-Platform Mobile App Development)
+- **Backend**: [Firebase](https://firebase.google.com/) (Auth, Cloud Firestore)
+- **Local Caching**: `shared_preferences` for lightning-fast local data access.
+- **UI Libraries**: 
+  - `animate_do` (for smooth micro-animations)
+  - `flutter_screenutil` (for pixel-perfect responsiveness)
+  - `shrink_sidemenu` (for a trendy 3D sidebar menu)
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Getting Started
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/KAVI7871281698/My-Wallet.git
-    cd my_wallet
-    ```
+Want to run this project on your own machine? Follow these simple steps:
 
-2.  **Install Dependencies**
-    ```bash
-    flutter pub get
-    ```
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/KAVI7871281698/My-Wallet.git
+   cd my_wallet
+   ```
 
-3.  **Configure Firebase**
-    *   Create a project in the [Firebase Console](https://console.firebase.google.com/).
-    *   Enable **Phone Authentication** and **Firestore Database**.
-    *   Add your `google-services.json` (Android) to `android/app/`.
+2. **Install Dependencies**
+   ```bash
+   flutter pub get
+   ```
 
-4.  **Run the App**
-    ```bash
-    flutter run
-    ```
+3. **Configure Firebase**
+   - Create a new project in the Firebase Console.
+   - Enable **Phone Authentication** and **Firestore Database**.
+   - Download the `google-services.json` file and place it in the `android/app/` directory.
 
----
-
-## 📂 Project Structure
-
-```text
-lib/
-├── Core/          # Constants and theme configurations
-├── Models/        # Data models (User, Expense, Saving)
-├── Screens/       # UI Screens (Dashboard, Auth, Savings, etc.)
-├── Services/      # Firebase and Logic services
-├── Widgets/       # Reusable UI components
-└── main.dart      # App entry point
-```
+4. **Run the App**
+   ```bash
+   flutter run
+   ```
 
 ---
 
-## 📢 Firestore Rules (Required)
-To ensure the app works correctly, apply these rules in your Firebase Console:
+## 🔒 Firestore Security Rules
+
+To ensure your data remains completely private and secure, apply these rules in your Firebase Firestore console:
 
 ```javascript
 rules_version = '2';
@@ -118,9 +112,6 @@ service cloud.firestore {
 
 ---
 
-## 🤝 Contributing
-Feel free to fork this project and submit a Pull Request! Any contribution to improve the UI or functionality is welcome.
-
----
-
-### Developed with ❤️ by Kavi
+<div align="center">
+  <h3>Designed & Developed with ❤️ by Kavi</h3>
+</div>
